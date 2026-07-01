@@ -28,6 +28,16 @@ YOUR_VERCEL_APP_URL=your-project.vercel.app
 
 `YOUR_VERCEL_APP_URL` указывай без `https://` в местах, где это прямо написано, и с `https://` в env URL.
 
+Где взять `YOUR_VERCEL_APP_URL`:
+
+1. Создай проект в Vercel из repo `ddenisroz/paidviewer-web`.
+2. В настройках проекта выбери root directory `frontend`.
+3. Сделай первый deploy, даже если backend env ещё не заполнен.
+4. Открой Vercel project -> Deployments -> последний deployment -> домен вида `paidviewer-web-xxxx.vercel.app`.
+5. Скопируй домен без `https://` и используй его как `YOUR_VERCEL_APP_URL`.
+
+Если позже добавишь custom domain, просто замени `YOUR_VERCEL_APP_URL` в Vercel env, server `.env` и OAuth callback URLs на новый домен.
+
 ## 2. Подготовить VPS
 
 ```bash
