@@ -89,7 +89,7 @@ curl -f http://YOUR_SERVER_IP:8000/health/ready
 Copy-Item frontend\vercel.ip-only.example.json frontend\vercel.json
 ```
 
-В `frontend/vercel.json` замени все `YOUR_SERVER_IP` на IP VPS.
+В `frontend/vercel.json` не должно быть реального IP. Этот файл можно коммитить в публичный repo: он содержит только внутренние rewrites на Vercel Function proxy.
 
 Vercel project settings:
 
@@ -108,10 +108,11 @@ VITE_API_URL=
 VITE_BOT_SERVICE_WS_URL=wss://YOUR_VERCEL_APP_URL/api
 VITE_FRONTEND_URL=https://YOUR_VERCEL_APP_URL
 VITE_LOCAL_TTS_AGENT_URL=
+BOT_SERVICE_HTTP_TARGET=http://YOUR_SERVER_IP:8000
 BOT_SERVICE_WS_TARGET=ws://YOUR_SERVER_IP:8000
 ```
 
-Пустой `VITE_BOT_SERVICE_URL` важен: frontend будет обращаться к своему Vercel-origin, а Vercel уже проксирует запросы на IP сервера.
+Пустой `VITE_BOT_SERVICE_URL` важен: frontend будет обращаться к своему Vercel-origin. Реальный IP сервера хранится только в server-side Vercel env `BOT_SERVICE_HTTP_TARGET` и `BOT_SERVICE_WS_TARGET`, а не в публичном репозитории.
 
 ## 5. OAuth Callback URLs
 
