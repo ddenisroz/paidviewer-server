@@ -38,6 +38,8 @@ docker compose --env-file /srv/paidviewer/env/.env -f deploy/docker/docker-compo
 
 Полная инструкция: [docs/DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md).
 
+Если backend будет без домена и только по IP, используй отдельный сценарий: [docs/IP_ONLY_VERCEL_GUIDE.md](docs/IP_ONLY_VERCEL_GUIDE.md).
+
 ## Обязательные Production-Переменные
 
 Минимально нужны:

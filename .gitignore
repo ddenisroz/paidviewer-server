@@ -406,6 +406,7 @@ tts_service/logs/*.log
 !.env.example
 !env.example
 !deploy/docker/.env.server.example
+!deploy/docker/.env.ip-only.example
 !bot_service/tests/.env.test
 bot_service/.env
 bot_service/.env.*
