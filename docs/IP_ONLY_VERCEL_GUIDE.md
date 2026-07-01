@@ -83,10 +83,10 @@ curl -f http://YOUR_SERVER_IP:8000/health/ready
 
 ## 4. Настроить Vercel Rewrites
 
-В repo `paidviewer-web` скопируй:
+В repo `paidviewer-web` уже есть готовый:
 
 ```powershell
-Copy-Item frontend\vercel.ip-only.example.json frontend\vercel.json
+frontend\vercel.json
 ```
 
 В `frontend/vercel.json` не должно быть реального IP. Этот файл можно коммитить в публичный repo: он содержит только внутренние rewrites на Vercel Function proxy.
