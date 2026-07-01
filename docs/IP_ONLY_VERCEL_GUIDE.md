@@ -45,10 +45,27 @@ sudo mkdir -p /srv/paidviewer/{env,uploads,logs,backups,postgres,redis,bot-data}
 sudo chown -R $USER:$USER /srv/paidviewer
 ```
 
+Склонируй backend repo на VPS:
+
+```bash
+sudo mkdir -p /opt/paidviewer
+sudo chown -R $USER:$USER /opt/paidviewer
+git clone https://github.com/ddenisroz/paidviewer-server.git /opt/paidviewer/server
+cd /opt/paidviewer/server
+```
+
 Скопируй IP-only env:
 
 ```bash
 cp deploy/docker/.env.ip-only.example /srv/paidviewer/env/.env
+nano /srv/paidviewer/env/.env
+```
+
+Если `/srv/paidviewer/env/.env` открылся пустым, значит команда `cp` не выполнилась или ты был не в папке repo. Создай файл напрямую из GitHub:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ddenisroz/paidviewer-server/main/deploy/docker/.env.ip-only.example \
+  -o /srv/paidviewer/env/.env
 nano /srv/paidviewer/env/.env
 ```
 
