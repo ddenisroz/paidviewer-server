@@ -108,7 +108,73 @@ curl -f http://YOUR_SERVER_IP:8000/health/ready
 
 Если health не отвечает, Vercel тоже не сможет достучаться.
 
-## 4. Настроить Vercel Rewrites
+## 4. Логи И Защита Диска
+
+Логи на сервере настроены так, чтобы они были доступны для диагностики, но не росли бесконечно.
+
+Docker logs для `postgres`, `redis` и `bot_service` ограничены в `deploy/docker/docker-compose.server.yml`:
+
+```yaml
+max-size: "10m"
+max-file: "5"
+compress: "true"
+```
+
+Это значит: Docker хранит не бесконечный поток stdout/stderr, а ограниченный набор файлов примерно до `50 MB` на сервис до сжатия.
+
+Application logs лежат здесь:
+
+```bash
+/srv/paidviewer/logs
+```
+
+Основной backend log:
+
+```bash
+/srv/paidviewer/logs/bot_service.log
+```
+
+Security log:
+
+```bash
+/srv/paidviewer/logs/security.log
+```
+
+Оба файловых лога ротируются. По умолчанию:
+
+- `bot_service.log`: `5 MB` файл + `5` backup-файлов;
+- `security.log`: `5 MB` файл + `5` backup-файлов.
+
+Для security log лимиты можно менять в `/srv/paidviewer/env/.env`:
+
+```env
+SECURITY_LOG_MAX_BYTES=5242880
+SECURITY_LOG_BACKUP_COUNT=5
+```
+
+Посмотреть логи:
+
+```bash
+docker compose --env-file /srv/paidviewer/env/.env -f deploy/docker/docker-compose.server.yml logs -f bot_service
+tail -n 200 /srv/paidviewer/logs/bot_service.log
+tail -n 200 /srv/paidviewer/logs/security.log
+du -sh /srv/paidviewer/logs
+```
+
+Если нужно временно больше подробностей:
+
+```env
+LOG_LEVEL=DEBUG
+LOG_FILE_LEVEL=INFO
+```
+
+После изменения env перезапусти backend:
+
+```bash
+docker compose --env-file /srv/paidviewer/env/.env -f deploy/docker/docker-compose.server.yml up -d
+```
+
+## 5. Настроить Vercel Rewrites
 
 В repo `paidviewer-web` уже есть готовый:
 
@@ -141,7 +207,7 @@ BOT_SERVICE_WS_TARGET=ws://YOUR_SERVER_IP:8000
 
 Пустой `VITE_BOT_SERVICE_URL` важен: frontend будет обращаться к своему Vercel-origin. Реальный IP сервера хранится только в server-side Vercel env `BOT_SERVICE_HTTP_TARGET` и `BOT_SERVICE_WS_TARGET`, а не в публичном репозитории.
 
-## 5. OAuth Callback URLs
+## 6. OAuth Callback URLs
 
 В провайдерах указывай Vercel URL, не raw IP:
 
@@ -155,7 +221,7 @@ https://YOUR_VERCEL_APP_URL/donationalerts/callback
 
 Так cookies будут выставляться на HTTPS-домен Vercel, а не на небезопасный HTTP IP.
 
-## 6. Проверка После Деплоя
+## 7. Проверка После Деплоя
 
 Открой:
 
@@ -171,7 +237,7 @@ https://YOUR_VERCEL_APP_URL
 - uploads доступны через `https://YOUR_VERCEL_APP_URL/static/uploads/...`;
 - `https://YOUR_VERCEL_APP_URL/health/ready` возвращает backend health.
 
-## 7. Ограничения IP-Only Режима
+## 8. Ограничения IP-Only Режима
 
 - Порт `8000` на VPS будет публичным.
 - Без домена нельзя получить нормальный публичный TLS-сертификат для backend IP.
@@ -179,7 +245,7 @@ https://YOUR_VERCEL_APP_URL
 - Vercel WebSockets сейчас работают через Vercel Functions beta; соединения могут закрываться по лимитам функции, клиент должен переподключаться.
 - Для production с меньшим количеством компромиссов лучше позже добавить домен хотя бы на backend.
 
-## 8. Обновление
+## 9. Обновление
 
 Backend:
 
