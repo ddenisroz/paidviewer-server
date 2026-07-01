@@ -1,0 +1,515 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+/lib/
+/lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.coverage*
+coverage_focus
+coverage_full
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+.pytest_tmp/
+_pytest_tmp/
+**/_pytest_tmp/
+bot_service/_pytest_tmp/
+pytest-cache-files-*/
+
+# Test databases
+test*.db
+*_test.db
+
+# Lint results
+lint-results.json
+
+# HTTP Archive files
+*.har
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# PEP 582
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# Ruff
+.ruff_cache/
+
+# Benchmarks
+.benchmarks/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# Grunt intermediate storage
+.grunt
+
+# Bower dependency directory
+bower_components
+
+# node-waf configuration
+.lock-wscript
+
+# Compiled binary addons
+build/Release
+
+# Dependency directories
+jspm_packages/
+
+# TypeScript v1 declaration files
+typings/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# parcel-bundler cache
+.cache
+.parcel-cache
+
+# Next.js build output
+.next
+
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Gatsby files
+.cache/
+/public/
+
+# Storybook build outputs
+.out
+.storybook-out
+
+# Temporary folders
+tmp/
+tmp_pycache/
+temp/
+artifacts/
+*.tmp
+*.fixed
+.agent/
+tts_worker_agent/config.json
+tts_worker_agent/paidviewer-worker-provisioning*.json
+tts_worker_agent/tmp_*/
+tts_worker_agent/.venv/
+tts_worker_agent/tmp_agent_stdout.log
+tts_worker_agent/tmp_agent_stderr.log
+
+# Logs
+logs
+*.log
+tmp_runtime_logs/
+Qwen_logs.txt
+bot_log.txt
+F5_log.txt
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Project specific
+/backups/
+/logs/
+/temp/
+/audio/
+/voices/
+/user_configs/
+/ssl/
+*.db
+*.sqlite
+*.sqlite3
+
+# Docker
+.dockerignore
+!tts_service/.dockerignore
+!bot_service/.dockerignore
+!frontend/.dockerignore
+
+# Cloudflare
+.cloudflared/
+
+# Project specific exclusions
+bot_service/logs/
+tts_service/logs/
+bot_service/backups/
+tts_service/backups/
+f5_tts_cache/
+tts_service/f5_tts_cache/
+tts_service/audio/
+tts_service/temp/
+tts_service/user_configs/
+bot_service/core/data/
+
+# TTS models and cache (large local files)
+**/f5_tts_cache/
+**/models--*/
+**/snapshots/
+**/*.bin
+**/*.safetensors
+**/pytorch_model.bin
+**/model.bin
+**/model_last_inference.pt
+*.aac
+*.wav
+*.mp3
+*.flac
+*.ogg
+*.m4a
+*.wma
+*.aiff
+*.au
+
+# Monitoring and backup files
+monitoring_viewer.py
+monitoring_viewer_enhanced.py
+backup_manager_demo.py
+install_*.py
+
+# Production local overrides
+*.prod.local
+env.production.local
+
+# Test output and temporary files (added during cleanup)
+pytest_*.txt
+*_output.txt
+*_log.txt
+regression_log.txt
+*.har
+.chrome-mcp-profile/
+
+# Old backups (keep only recent)
+*/backups/*/*.db
+*/backups/*/*.tar.gz
+*/backups/*/*.zip
+
+# Audio temp files
+*/audio/temp/*
+*/audio/cache/*
+*/audio/test/*
+
+# Python bytecode and cache
+*.pyc
+*.pyo
+__pycache__/
+.Python
+
+# Logs (keep only error logs)
+*/logs/*.log
+*/logs/*/*.log
+!*/logs/errors/*.log
+
+# IDE and editor files
+*.swp
+*.swo
+*~
+.vscode/settings.json
+.vscode/launch.json
+.idea/workspace.xml
+.idea/tasks.xml
+
+# OS specific
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ======== PROJECT SPECIFIC (Added Oct 22, 2025) ========
+
+# Database files
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+bot_service/*.db
+bot_service/*.db-*
+tts_service/*.db
+tts_service/*.db-*
+
+# Log files
+*.log
+bot_service/*.log
+tts_service/*.log
+bot_service/logs/*.log
+tts_service/logs/*.log
+
+# Environment files
+.env
+.env.*
+!.env.example
+!env.example
+!deploy/docker/.env.server.example
+!bot_service/tests/.env.test
+bot_service/.env
+bot_service/.env.*
+!bot_service/env.example
+!bot_service/.env.example
+frontend/.env
+frontend/.env.*
+!frontend/env.example
+!frontend/.env.example
+tts_service/.env
+tts_service/.env.*
+!tts_service/env.example
+!tts_service/.env.example
+
+# Temp and cache
+temp/
+tmp/
+cache/
+output/
+.playwright/
+.playwright-cli/
+.playwrite/
+playwright-report/
+bot_service/temp/
+bot_service/cache/
+tts_service/temp/
+tts_service/cache/
+frontend/dist/
+frontend/build/
+
+# Personal notes and prompts
+prompt.txt
+notes.txt
+todo.txt
+.cursor/
+
+# Backup folders
+backups/
+bot_service/backups/
+tts_service/backups/
+
+# Audio files (TTS generated)
+*.wav
+*.mp3
+*.ogg
+*.flac
+bot_service/temp/tts_audio/*.wav
+bot_service/temp/tts_audio/*.mp3
+tts_service/audio/*.wav
+tts_service/audio/*.mp3
+
+# Python virtual environments
+.venv/
+venv/
+env/
+ENV/
+.python-version
+
+# Node modules
+node_modules/
+frontend/node_modules/
+
+# Build outputs
+dist/
+build/
+frontend/dist/
+frontend/build/
+
+# IDE specific
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.cursor/
+
+# OS specific
+.DS_Store
+Thumbs.db
+desktop.ini
+*.tmp
+
+# Git artifacts
+*.orig
+*.rej
+
+# SSL certificates
+*.pem
+*.key
+*.crt
+ssl/
+certs/
+
+# User dumps and large logs
+users_*.md
+collection_errors.txt
+lint_output.txt
+logs_*.md
+codex-ui-screenshots/
+db_backups/
+frontend/vite-browser-pass*.log
+
+# Keep source/assets that were previously shadowed by broad patterns
+!frontend/public/
+!frontend/public/**
+!frontend/src/lib/
+!frontend/src/lib/**
