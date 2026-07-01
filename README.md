@@ -1,46 +1,46 @@
 # Paidviewer Server
 
-Production backend repository for Paidviewer.
+Production backend-репозиторий Paidviewer.
 
-Contains:
+Содержит:
 
-- `bot_service` - FastAPI backend, integrations, bots, worker control plane;
-- `deploy` - Docker Compose and reverse proxy examples;
-- `docs` - deployment, smoke and release guides;
-- `scripts` - migration and maintenance helpers.
+- `bot_service` - FastAPI backend, интеграции, боты и worker control plane;
+- `deploy` - Docker Compose и примеры reverse proxy;
+- `docs` - инструкции по деплою, smoke-проверкам и релизу;
+- `scripts` - миграции и сервисные скрипты.
 
-Frontend lives in `paidviewer-web`. Self Hosted TTS agent lives in `paidviewer-self-host`.
+Frontend находится в `paidviewer-web`. Self Hosted TTS agent находится в `paidviewer-self-host`.
 
-## Deploy
+## Деплой
 
-1. Prepare VPS directories:
+1. Подготовить директории на VPS:
 
 ```bash
 sudo mkdir -p /srv/paidviewer/{env,uploads,logs,backups,postgres,redis,bot-data}
 sudo chown -R $USER:$USER /srv/paidviewer
 ```
 
-2. Copy env template:
+2. Скопировать env-шаблон:
 
 ```bash
 cp deploy/docker/.env.server.example /srv/paidviewer/env/.env
 ```
 
-3. Fill real values in `/srv/paidviewer/env/.env`.
+3. Заполнить реальные значения в `/srv/paidviewer/env/.env`.
 
-4. Start:
+4. Запустить:
 
 ```bash
 docker compose --env-file /srv/paidviewer/env/.env -f deploy/docker/docker-compose.server.yml up -d
 ```
 
-5. Put Caddy or Nginx in front of `127.0.0.1:8000`.
+5. Поставить Caddy или Nginx перед `127.0.0.1:8000`.
 
-See [docs/DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md) for the full guide.
+Полная инструкция: [docs/DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md).
 
-## Required Production Variables
+## Обязательные Production-Переменные
 
-Minimum required:
+Минимально нужны:
 
 - `POSTGRES_USER`
 - `POSTGRES_PASSWORD`
@@ -53,11 +53,11 @@ Minimum required:
 - `FRONTEND_URL`
 - `CORS_ORIGINS`
 
-Integration variables are optional until the feature is used: Twitch, VK Live, YouTube, DonationAlerts.
+Переменные интеграций можно заполнить позже, когда понадобится конкретная функция: Twitch, VK Live, YouTube, DonationAlerts.
 
-## Storage
+## Хранилище
 
-Runtime state is outside git:
+Runtime-состояние хранится вне git:
 
 - uploads: `/srv/paidviewer/uploads`
 - logs: `/srv/paidviewer/logs`
@@ -65,9 +65,9 @@ Runtime state is outside git:
 - postgres: `/srv/paidviewer/postgres`
 - redis: `/srv/paidviewer/redis`
 
-Docker logs and app logs are rotated by default.
+Docker-логи и app-логи ротируются по умолчанию.
 
-## Update
+## Обновление
 
 ```bash
 docker exec paidviewer_postgres pg_dump -U paidviewer paidviewer > /srv/paidviewer/backups/paidviewer-$(date +%F-%H%M%S).sql
