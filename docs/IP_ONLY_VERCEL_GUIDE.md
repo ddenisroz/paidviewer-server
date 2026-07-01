@@ -77,6 +77,21 @@ nano /srv/paidviewer/env/.env
 - OAuth credentials, если используешь интеграции
 - `BOT_SERVICE_IMAGE`
 
+Для первого запуска проще собрать backend image прямо на VPS:
+
+```bash
+cd /opt/paidviewer/server
+docker build -t paidviewer-server:local -f bot_service/Dockerfile.prod bot_service
+```
+
+После этого в `/srv/paidviewer/env/.env` поставь:
+
+```env
+BOT_SERVICE_IMAGE=paidviewer-server:local
+```
+
+Позже, когда будет настроена публикация Docker image в GHCR, можно заменить это на tag вида `ghcr.io/ddenisroz/paidviewer-server:<version>`.
+
 Для IP-only режима обязательно:
 
 ```env
@@ -86,6 +101,47 @@ BACKEND_URL=https://YOUR_VERCEL_APP_URL
 FRONTEND_URL=https://YOUR_VERCEL_APP_URL
 CORS_ORIGINS=https://YOUR_VERCEL_APP_URL
 ```
+
+Минимальный набор значений для первого запуска:
+
+```env
+PAIDVIEWER_DATA_DIR=/srv/paidviewer
+BOT_SERVICE_BIND_IP=0.0.0.0
+BOT_SERVICE_PORT=8000
+
+POSTGRES_USER=paidviewer
+POSTGRES_PASSWORD=<сильный_пароль_для_postgres>
+POSTGRES_DB=paidviewer
+REDIS_PASSWORD=<сильный_пароль_для_redis>
+
+BOT_SERVICE_IMAGE=paidviewer-server:local
+
+SECRET_KEY=<openssl_rand_hex_32>
+TOKEN_ENCRYPTION_KEY=<fernet_key>
+
+BACKEND_URL=https://YOUR_VERCEL_APP_URL
+FRONTEND_URL=https://YOUR_VERCEL_APP_URL
+CORS_ORIGINS=https://YOUR_VERCEL_APP_URL
+```
+
+Сгенерировать пароли и ключи на VPS:
+
+```bash
+openssl rand -base64 32
+openssl rand -base64 32
+openssl rand -hex 32
+docker run --rm python:3.12-slim sh -lc "pip install -q cryptography && python -c 'from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())'"
+```
+
+Первый `openssl rand -base64 32` используй для `POSTGRES_PASSWORD`, второй для `REDIS_PASSWORD`, `openssl rand -hex 32` для `SECRET_KEY`, результат Python-команды для `TOKEN_ENCRYPTION_KEY`.
+
+Интеграции можно оставить пустыми, пока они не нужны:
+
+- `TWITCH_CLIENT_ID`, `TWITCH_CLIENT_SECRET`;
+- `VK_CLIENT_ID`, `VK_CLIENT_SECRET`;
+- `YOUTUBE_API_KEY`;
+- `DONATIONALERTS_CLIENT_ID`, `DONATIONALERTS_CLIENT_SECRET`, `DONATIONALERTS_WEBHOOK_SECRET`;
+- `ADMIN_USERS`.
 
 Открой порт:
 
