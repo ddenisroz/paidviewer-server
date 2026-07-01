@@ -12,9 +12,9 @@ Use three repositories:
 
 | Repository | Content | Deploy target |
 | --- | --- | --- |
-| `paidviewer-server` | `bot_service`, `deploy`, backend migrations/scripts/docs | VPS Docker Compose |
-| `paidviewer-web` | `frontend` | Vercel |
-| `paidviewer-self-host` | `tts_worker_agent`, release scripts, user README | GitHub Releases |
+| `ddenisroz/paidviewer-server` | `bot_service`, `deploy`, backend migrations/scripts/docs | VPS Docker Compose |
+| `ddenisroz/paidviewer-web` | `frontend` | Vercel |
+| `ddenisroz/paidviewer-self-host` | `tts_worker_agent`, release scripts, user README | GitHub Releases |
 
 Do not commit runtime state: `.env`, `logs`, `uploads`, `backups`, `tmp`, caches, `frontend/dist`, `node_modules`, local worker `config.json`.
 
