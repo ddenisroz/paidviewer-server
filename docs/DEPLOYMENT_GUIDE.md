@@ -149,8 +149,9 @@ Suggested retention:
 Server:
 
 ```bash
-docker compose --env-file /srv/paidviewer/env/.env -f deploy/docker/docker-compose.server.yml pull
-docker compose --env-file /srv/paidviewer/env/.env -f deploy/docker/docker-compose.server.yml up -d
+cd /opt/paidviewer/server
+git pull
+bash scripts/vps-deploy-smoke.sh
 curl -f https://api.example.com/health/ready
 ```
 

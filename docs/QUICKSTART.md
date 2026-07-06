@@ -66,6 +66,14 @@ docker compose --env-file /srv/paidviewer/env/.env -f deploy/docker/docker-compo
 curl -f http://127.0.0.1:8000/health/ready
 ```
 
+Можно выполнить тот же сценарий одной smoke-командой:
+
+```bash
+cd /opt/paidviewer/server
+git pull
+bash scripts/vps-deploy-smoke.sh
+```
+
 ## Где Остальные Части
 
 - frontend: `ddenisroz/paidviewer-web`, деплой на Vercel;

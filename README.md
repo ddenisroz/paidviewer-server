@@ -73,7 +73,8 @@ Docker-логи и app-логи ротируются по умолчанию.
 
 ```bash
 docker exec paidviewer_postgres pg_dump -U paidviewer paidviewer > /srv/paidviewer/backups/paidviewer-$(date +%F-%H%M%S).sql
-docker compose --env-file /srv/paidviewer/env/.env -f deploy/docker/docker-compose.server.yml pull
-docker compose --env-file /srv/paidviewer/env/.env -f deploy/docker/docker-compose.server.yml up -d
+cd /opt/paidviewer/server
+git pull
+bash scripts/vps-deploy-smoke.sh
 curl -f https://api.example.com/health/ready
 ```

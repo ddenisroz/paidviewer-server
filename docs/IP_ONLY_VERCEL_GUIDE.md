@@ -307,8 +307,9 @@ Backend:
 
 ```bash
 docker exec paidviewer_postgres pg_dump -U paidviewer paidviewer > /srv/paidviewer/backups/paidviewer-$(date +%F-%H%M%S).sql
-docker compose --env-file /srv/paidviewer/env/.env -f deploy/docker/docker-compose.server.yml pull
-docker compose --env-file /srv/paidviewer/env/.env -f deploy/docker/docker-compose.server.yml up -d
+cd /opt/paidviewer/server
+git pull
+bash scripts/vps-deploy-smoke.sh
 curl -f http://YOUR_SERVER_IP:8000/health/ready
 ```
 
