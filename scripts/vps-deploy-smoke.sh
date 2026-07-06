@@ -4,9 +4,28 @@ set -Eeuo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ENV_FILE="${ENV_FILE:-/srv/paidviewer/env/.env}"
 COMPOSE_FILE="${COMPOSE_FILE:-deploy/docker/docker-compose.server.yml}"
-IMAGE_TAG="${BOT_SERVICE_IMAGE:-paidviewer-server:local}"
+
+read_env_var() {
+  local key="$1"
+  local value
+  value="$(grep -E "^[[:space:]]*${key}=" "$ENV_FILE" | tail -n 1 | sed -E "s/^[[:space:]]*${key}=//" || true)"
+  value="${value%$'\r'}"
+  value="${value#\"}"
+  value="${value%\"}"
+  value="${value#\'}"
+  value="${value%\'}"
+  printf '%s' "$value"
+}
 
 cd "$ROOT_DIR"
+
+if [[ ! -f "$ENV_FILE" ]]; then
+  echo "Missing env file: $ENV_FILE" >&2
+  exit 1
+fi
+
+IMAGE_TAG="${BOT_SERVICE_IMAGE:-$(read_env_var BOT_SERVICE_IMAGE)}"
+IMAGE_TAG="${IMAGE_TAG:-paidviewer-server:local}"
 
 echo "== Paidviewer server deploy smoke =="
 echo "Repo: $ROOT_DIR"
@@ -14,11 +33,6 @@ echo "Env: $ENV_FILE"
 echo "Compose: $COMPOSE_FILE"
 echo "Image: $IMAGE_TAG"
 echo
-
-if [[ ! -f "$ENV_FILE" ]]; then
-  echo "Missing env file: $ENV_FILE" >&2
-  exit 1
-fi
 
 echo "== Git revision =="
 git log -3 --oneline
