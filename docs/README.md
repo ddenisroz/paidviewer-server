@@ -4,11 +4,12 @@
 
 ## Активные документы
 
-1. [QUICKSTART.md](/H:/Programming/raw_code/AI/Python/paidviewer_tools/docs/QUICKSTART.md)
-2. [DEPLOYMENT_GUIDE.md](/H:/Programming/raw_code/AI/Python/paidviewer_tools/docs/DEPLOYMENT_GUIDE.md)
-3. [release/RELEASE_CHECKLIST.md](/H:/Programming/raw_code/AI/Python/paidviewer_tools/docs/release/RELEASE_CHECKLIST.md)
-4. [setup/LIVE_SMOKE_RUNBOOK.md](/H:/Programming/raw_code/AI/Python/paidviewer_tools/docs/setup/LIVE_SMOKE_RUNBOOK.md)
-5. [setup/TTS_SUPPORT_RUNBOOK.md](/H:/Programming/raw_code/AI/Python/paidviewer_tools/docs/setup/TTS_SUPPORT_RUNBOOK.md)
+1. [IP_ONLY_VERCEL_GUIDE.md](IP_ONLY_VERCEL_GUIDE.md)
+2. [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)
+3. [QUICKSTART.md](QUICKSTART.md)
+4. [release/RELEASE_CHECKLIST.md](release/RELEASE_CHECKLIST.md)
+5. [setup/LIVE_SMOKE_RUNBOOK.md](setup/LIVE_SMOKE_RUNBOOK.md)
+6. [setup/TTS_SUPPORT_RUNBOOK.md](setup/TTS_SUPPORT_RUNBOOK.md)
 
 ## Что где искать
 

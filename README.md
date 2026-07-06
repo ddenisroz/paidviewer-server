@@ -48,7 +48,7 @@ docker compose --env-file /srv/paidviewer/env/.env -f deploy/docker/docker-compo
 - `POSTGRES_PASSWORD`
 - `POSTGRES_DB`
 - `REDIS_PASSWORD`
-- `BOT_SERVICE_IMAGE`
+- `BOT_SERVICE_IMAGE` (`paidviewer-server:local` для первого VPS-запуска)
 - `SECRET_KEY`
 - `TOKEN_ENCRYPTION_KEY`
 - `BACKEND_URL`

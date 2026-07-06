@@ -80,7 +80,7 @@
 - provisioning bundle создаётся успешно
 - `tts_worker_agent` активируется без `version_mismatch`
 - synth идёт через локальный агент и локальный runtime
-- upload smoke использует [female_1.wav](/H:/Programming/raw_code/AI/Python/paidviewer_tools/female_1.wav)
+- upload smoke использует любой короткий `.wav` файл, выбранный вручную для проверки
 
 ### S3. Drops duplicate-event/session-boundary
 

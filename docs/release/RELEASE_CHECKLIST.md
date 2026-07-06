@@ -2,9 +2,9 @@
 
 ## Before deploy
 
-- Python baseline is fixed to `3.12` across `paidviewer_tools`, `tts-gateway`, `f5-tts-service`
-- pinned `BOT_SERVICE_IMAGE`, `FRONTEND_IMAGE`, `TTS_GATEWAY_IMAGE`, `F5_TTS_IMAGE` are set
-- `docker-compose.prod.yml` validates and contains no host-port conflicts
+- Python baseline is fixed to `3.12` across `paidviewer-server`, `paidviewer-self-host`, `tts-gateway`, `f5-tts-service`
+- pinned or locally built `BOT_SERVICE_IMAGE` is set for the server deploy
+- `docker-compose.server.yml` validates and contains no host-port conflicts
 - migrations apply without manual patching
 - `VK Live` and `Twitch` are both GA platform integrations
 - canonical admin route is only `/dashboard/admin`
@@ -14,7 +14,7 @@
 
 - `BACKEND_URL`, `FRONTEND_URL`, `DATABASE_URL`, `REDIS_URL` are filled in for the target environment
 - `TTS_GATEWAY_URL`, `TTS_GATEWAY_API_KEY`, `F5_TTS_SERVICE_URL`, `F5_TTS_SERVICE_API_KEY` are set
-- `BOT_SERVICE_IMAGE` and `FRONTEND_IMAGE` point to release images, not local `build:` paths
+- `BOT_SERVICE_IMAGE` points to the intended server image or documented local VPS image
 - `TTS_WORKER_AGENT_REQUIRED_VERSION` and `TTS_WORKER_AGENT_RECOMMENDED_VERSION` are configured
 - `LOCAL_TTS_ALLOWED_HOSTS` and `LOCAL_TTS_ALLOWED_CIDRS` are configured for the target environment
 - provider runtime API keys are accepted from headers only in public paths; query-string keys are not used by product traffic
@@ -37,7 +37,7 @@
 - `frontend` `npm run check:no-direct-tts-url` is green
 - runtime repos `tts-gateway`, `f5-tts-service` pass their local `pytest -q` suites
 - `npm audit --audit-level=high` and Python dependency audit have no untriaged high/critical issues
-- local Docker compose validates with `docker compose --env-file deploy/docker/compose.local.env -f deploy/docker/docker-compose.local.yml config -q`
+- server Docker compose validates with `docker compose --env-file deploy/docker/.env.example -f deploy/docker/docker-compose.server.yml config -q`
 - production compose validates with pinned release image variables before any tag is cut
 
 ## Data hygiene gate
