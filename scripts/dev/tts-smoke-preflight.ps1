@@ -202,8 +202,7 @@ if ($Scenario -in @('all', 'self_host')) {
 }
 
 if (-not $SkipComposeChecks) {
-    Invoke-ComposeConfigCheck -ComposeFile (Join-Path $repoRoot 'deploy\docker\docker-compose.prod.yml') -Results $results
-    Invoke-ComposeConfigCheck -ComposeFile (Join-Path $repoRoot 'deploy\docker\docker-compose.local.yml') -Results $results
+    Invoke-ComposeConfigCheck -ComposeFile (Join-Path $repoRoot 'deploy\docker\docker-compose.server.yml') -Results $results
 }
 
 foreach ($result in $results) {

@@ -32,7 +32,7 @@
 До smoke должно быть закрыто:
 
 - `bot_service/.env` существует и заполнен
-- `frontend/.env` существует и указывает на `bot_service`
+- `paidviewer-web/frontend` настроен отдельно и указывает на публичный backend/Vercel proxy
 - backend знает URL и API keys для TTS upstreams
 - provider-specific direct keys (`F5_TTS_SERVICE_API_KEY`) не подменяются одним только `TTS_GATEWAY_API_KEY`
 - `LOCAL_TTS_ALLOWED_HOSTS` и `LOCAL_TTS_ALLOWED_CIDRS` настроены

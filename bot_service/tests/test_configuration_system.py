@@ -258,8 +258,7 @@ class TestDockerConfiguration:
     def test_docker_compose_files_exist(self):
         """Verify Docker Compose files exist"""
         required_compose_files = [
-            REPO_ROOT / 'deploy' / 'docker' / 'docker-compose.prod.yml',
-            REPO_ROOT / 'deploy' / 'docker' / 'docker-compose.local.yml',
+            REPO_ROOT / 'deploy' / 'docker' / 'docker-compose.server.yml',
         ]
         
         for compose_file in required_compose_files:
@@ -282,8 +281,7 @@ class TestDockerConfiguration:
         _ComposeLoader.add_multi_constructor("!", _construct_passthrough)
         
         compose_files = [
-            REPO_ROOT / 'deploy' / 'docker' / 'docker-compose.prod.yml',
-            REPO_ROOT / 'deploy' / 'docker' / 'docker-compose.local.yml',
+            REPO_ROOT / 'deploy' / 'docker' / 'docker-compose.server.yml',
         ]
         
         for compose_file in compose_files:

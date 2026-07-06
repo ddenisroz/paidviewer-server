@@ -341,7 +341,6 @@ class TestAllSystems:
         """Test that all .env.example files are complete"""
         env_files = [
             (PROJECT_ROOT / '.env.example', ['SECRET_KEY', 'DATABASE_URL', 'TWITCH_CLIENT_ID']),
-            (PROJECT_ROOT / 'frontend/.env.example', ['VITE_BOT_SERVICE_URL', 'VITE_BOT_SERVICE_WS_URL']),
             (PROJECT_ROOT / 'bot_service/.env.example', ['F5_TTS_SERVICE_URL']),
         ]
         

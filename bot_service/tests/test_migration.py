@@ -46,21 +46,6 @@ class TestMigrationScript:
             if var not in bot_env_content:
                 print(f"[WARN] {var} not found in bot_service/.env.example")
 
-        frontend_env_path = Path("../frontend/.env.example")
-        if not frontend_env_path.exists():
-            return
-
-        with open(frontend_env_path, "r", encoding="utf-8") as file:
-            frontend_env_content = file.read()
-
-        required_frontend_vars = [
-            "VITE_BOT_SERVICE_URL",
-            "VITE_BOT_SERVICE_WS_URL",
-            "VITE_FRONTEND_URL",
-        ]
-        for var in required_frontend_vars:
-            assert var in frontend_env_content, f"{var} not found in frontend/.env.example"
-
     def test_migration_scripts_exist(self):
         migrate_sh = Path("../scripts/migrate.sh")
         migrate_ps1 = Path("../scripts/migrate.ps1")
@@ -93,7 +78,7 @@ class TestMigrationScript:
             if dir_name not in content:
                 print(f"[WARN] Directory creation for {dir_name} not found")
 
-    def test_migration_script_installs_dependencies(self):
+    def test_migration_script_points_to_server_smoke(self):
         migrate_sh = Path("../scripts/migrate.sh")
         if not migrate_sh.exists():
             return
@@ -101,29 +86,10 @@ class TestMigrationScript:
         with open(migrate_sh, "r", encoding="utf-8") as file:
             content = file.read()
 
-        if "pip install -r requirements.txt" not in content:
-            print("[WARN] Backend dependency installation not found")
-        if "npm install" not in content:
-            print("[WARN] Frontend dependency installation not found")
-
-    def test_migration_script_runs_migrations(self):
-        migrate_sh = Path("../scripts/migrate.sh")
-        if not migrate_sh.exists():
-            return
-
-        with open(migrate_sh, "r", encoding="utf-8") as file:
-            content = file.read()
-
-        if "alembic upgrade head" not in content:
-            print("[WARN] Database migration not found")
+        assert "vps-deploy-smoke.sh" in content
+        assert "deploy/docker/.env.example" in content
 
     def test_required_directories_structure(self):
-        required_structure = {
-            "bot_service": ["data", "logs"],
-            "frontend": [],
-            "logs": ["access", "app", "audit", "errors", "monitoring"],
-        }
-
         migrate_sh = Path("../scripts/migrate.sh")
         if not migrate_sh.exists():
             return
@@ -131,10 +97,9 @@ class TestMigrationScript:
         with open(migrate_sh, "r", encoding="utf-8") as file:
             content = file.read()
 
-        for parent, subdirs in required_structure.items():
-            for _subdir in subdirs:
-                if parent not in content:
-                    print(f"[WARN] Directory {parent} not mentioned in migration script")
+        assert "/srv/paidviewer" in content
+        for dirname in ["env", "uploads", "logs", "backups", "postgres", "redis", "bot-data"]:
+            assert dirname in content
 
     def test_env_files_have_comments(self):
         bot_env_path = Path(".env.example")
