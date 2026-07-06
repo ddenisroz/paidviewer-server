@@ -28,13 +28,15 @@ cp deploy/docker/.env.server.example /srv/paidviewer/env/.env
 
 3. Заполнить реальные значения в `/srv/paidviewer/env/.env`.
 
-4. Запустить:
+4. Запустить smoke-деплой:
 
 ```bash
-docker compose --env-file /srv/paidviewer/env/.env -f deploy/docker/docker-compose.server.yml up -d
+bash scripts/vps-deploy-smoke.sh
 ```
 
-5. Поставить Caddy или Nginx перед `127.0.0.1:8000`.
+Скрипт проверит compose config, пересоберёт локальный backend image без кеша, пересоздаст контейнеры и дождётся `/health/ready`.
+
+5. Поставить Caddy или Nginx перед `127.0.0.1:8000`, если backend работает через домен.
 
 Полная инструкция: [docs/DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md).
 
@@ -76,5 +78,4 @@ docker exec paidviewer_postgres pg_dump -U paidviewer paidviewer > /srv/paidview
 cd /opt/paidviewer/server
 git pull
 bash scripts/vps-deploy-smoke.sh
-curl -f https://api.example.com/health/ready
 ```

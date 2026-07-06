@@ -61,9 +61,10 @@ DONATIONALERTS_REDIRECT_URI=https://api.example.com/donationalerts/callback
 From the server repository:
 
 ```bash
-docker compose --env-file /srv/paidviewer/env/.env -f deploy/docker/docker-compose.server.yml up -d
-docker compose --env-file /srv/paidviewer/env/.env -f deploy/docker/docker-compose.server.yml ps
+bash scripts/vps-deploy-smoke.sh
 ```
+
+The smoke script validates compose config, rebuilds the backend image with the configured `BOT_SERVICE_IMAGE` tag, recreates containers and waits for `/health/ready`.
 
 Expose the backend through Caddy or Nginx. A Caddy example is in `deploy/Caddyfile.example`.
 

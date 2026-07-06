@@ -77,18 +77,13 @@ nano /srv/paidviewer/env/.env
 - OAuth credentials, если используешь интеграции
 - `BOT_SERVICE_IMAGE`
 
-Для первого запуска проще собрать backend image прямо на VPS:
-
-```bash
-cd /opt/paidviewer/server
-docker build -t paidviewer-server:local -f bot_service/Dockerfile.prod bot_service
-```
-
-После этого в `/srv/paidviewer/env/.env` поставь:
+Для первого запуска поставь локальный image tag:
 
 ```env
 BOT_SERVICE_IMAGE=paidviewer-server:local
 ```
+
+Сам image соберёт `scripts/vps-deploy-smoke.sh` на шаге запуска. Так меньше риска случайно поднять старый образ.
 
 Позже, когда будет настроена публикация Docker image в GHCR, можно заменить это на tag вида `ghcr.io/ddenisroz/paidviewer-server:<version>`.
 
@@ -149,11 +144,12 @@ docker run --rm python:3.12-slim sh -lc "pip install -q cryptography && python -
 sudo ufw allow 8000/tcp
 ```
 
+Если `ufw` не установлен, не используется на VPS или команда падает, открой TCP `8000` в firewall-панели провайдера. Для проверки самого backend на сервере достаточно локального `curl http://127.0.0.1:8000/health/ready`; для Vercel порт должен быть доступен снаружи по `http://YOUR_SERVER_IP:8000`.
+
 ## 3. Запустить Backend
 
 ```bash
-docker compose --env-file /srv/paidviewer/env/.env -f deploy/docker/docker-compose.server.yml up -d
-docker compose --env-file /srv/paidviewer/env/.env -f deploy/docker/docker-compose.server.yml ps
+bash scripts/vps-deploy-smoke.sh
 ```
 
 Проверка с твоего компьютера:

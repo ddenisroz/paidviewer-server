@@ -21,18 +21,10 @@ cp deploy/docker/.env.ip-only.example /srv/paidviewer/env/.env
 nano /srv/paidviewer/env/.env
 ```
 
-Собери backend image локально на VPS:
+Запусти smoke-деплой. Он сам проверит compose config, пересоберёт backend image без кеша, пересоздаст контейнеры и дождётся `/health/ready`:
 
 ```bash
-docker build -t paidviewer-server:local -f bot_service/Dockerfile.prod bot_service
-```
-
-Запусти:
-
-```bash
-docker compose --env-file /srv/paidviewer/env/.env -f deploy/docker/docker-compose.server.yml up -d
-docker compose --env-file /srv/paidviewer/env/.env -f deploy/docker/docker-compose.server.yml ps
-curl -f http://127.0.0.1:8000/health/ready
+bash scripts/vps-deploy-smoke.sh
 ```
 
 ## Что Должно Быть В Env
@@ -57,16 +49,6 @@ BOT_SERVICE_PORT=8000
 Интеграции Twitch, VK, YouTube и DonationAlerts можно заполнить позже.
 
 ## Обновление
-
-```bash
-cd /opt/paidviewer/server
-git pull
-docker build --no-cache -t paidviewer-server:local -f bot_service/Dockerfile.prod bot_service
-docker compose --env-file /srv/paidviewer/env/.env -f deploy/docker/docker-compose.server.yml up -d
-curl -f http://127.0.0.1:8000/health/ready
-```
-
-Можно выполнить тот же сценарий одной smoke-командой:
 
 ```bash
 cd /opt/paidviewer/server
