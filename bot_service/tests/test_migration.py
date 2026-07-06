@@ -3,6 +3,7 @@
 import os
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -18,6 +19,68 @@ class TestMigrationScript:
 
         assert "scripts/bootstrap_database.py" in content
         assert "uvicorn main:create_app" in content
+
+    def test_bootstrap_recovers_unversioned_existing_schema(self, monkeypatch):
+        import scripts.bootstrap_database as bootstrap_database
+
+        calls = []
+
+        class FakeSession:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb):
+                return False
+
+            def execute(self, statement):
+                calls.append(("execute", str(statement)))
+                return SimpleNamespace(fetchall=lambda: [])
+
+        monkeypatch.setattr(bootstrap_database, "SessionLocal", lambda: FakeSession())
+        monkeypatch.setattr(bootstrap_database, "_table_exists", lambda table: table in {"users", "alembic_version"})
+        monkeypatch.setattr(bootstrap_database, "_bootstrap_empty_database", lambda: calls.append(("bootstrap", None)))
+        monkeypatch.setattr(bootstrap_database, "_upgrade_existing_database", lambda: calls.append(("upgrade", None)))
+        monkeypatch.setattr(
+            bootstrap_database,
+            "_stamp_existing_unversioned_database",
+            lambda: calls.append(("stamp_unversioned", None)),
+        )
+
+        bootstrap_database.main()
+
+        assert ("stamp_unversioned", None) in calls
+        assert ("upgrade", None) not in calls
+
+    def test_bootstrap_upgrades_versioned_existing_schema(self, monkeypatch):
+        import scripts.bootstrap_database as bootstrap_database
+
+        calls = []
+
+        class FakeSession:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb):
+                return False
+
+            def execute(self, statement):
+                calls.append(("execute", str(statement)))
+                return SimpleNamespace(fetchall=lambda: [("head-revision",)])
+
+        monkeypatch.setattr(bootstrap_database, "SessionLocal", lambda: FakeSession())
+        monkeypatch.setattr(bootstrap_database, "_table_exists", lambda table: table in {"users", "alembic_version"})
+        monkeypatch.setattr(bootstrap_database, "_bootstrap_empty_database", lambda: calls.append(("bootstrap", None)))
+        monkeypatch.setattr(bootstrap_database, "_upgrade_existing_database", lambda: calls.append(("upgrade", None)))
+        monkeypatch.setattr(
+            bootstrap_database,
+            "_stamp_existing_unversioned_database",
+            lambda: calls.append(("stamp_unversioned", None)),
+        )
+
+        bootstrap_database.main()
+
+        assert ("upgrade", None) in calls
+        assert ("stamp_unversioned", None) not in calls
 
     def test_env_example_files_complete(self):
         bot_env_path = Path(".env.example")

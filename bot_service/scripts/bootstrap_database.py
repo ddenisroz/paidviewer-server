@@ -32,12 +32,30 @@ def _table_exists(table_name: str) -> bool:
     return table_name in inspector.get_table_names()
 
 
+def _alembic_versions() -> set[str]:
+    if not _table_exists("alembic_version"):
+        return set()
+
+    with SessionLocal() as session:
+        rows = session.execute(text("SELECT version_num FROM alembic_version")).fetchall()
+    return {str(row[0]) for row in rows if row[0]}
+
+
 def _bootstrap_empty_database() -> None:
     logger.info("Empty database detected. Creating schema from SQLAlchemy metadata.")
     ensure_db_schema()
     init_db(create_schema=False, strict=False)
     logger.info("Stamping Alembic heads for freshly created schema.")
     command.stamp(_alembic_config(), "heads", purge=True)
+
+
+def _stamp_existing_unversioned_database() -> None:
+    logger.warning(
+        "Database tables exist but Alembic version is missing. "
+        "Assuming SQLAlchemy metadata bootstrap already created the current schema."
+    )
+    command.stamp(_alembic_config(), "heads", purge=True)
+    init_db(create_schema=False, strict=False)
 
 
 def _upgrade_existing_database() -> None:
@@ -52,6 +70,8 @@ def main() -> None:
 
     if not _table_exists("users"):
         _bootstrap_empty_database()
+    elif not _alembic_versions():
+        _stamp_existing_unversioned_database()
     else:
         _upgrade_existing_database()
 
