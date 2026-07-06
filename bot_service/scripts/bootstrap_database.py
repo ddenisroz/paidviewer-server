@@ -37,7 +37,7 @@ def _bootstrap_empty_database() -> None:
     ensure_db_schema()
     init_db(create_schema=False, strict=False)
     logger.info("Stamping Alembic heads for freshly created schema.")
-    command.stamp(_alembic_config(), "heads")
+    command.stamp(_alembic_config(), "heads", purge=True)
 
 
 def _upgrade_existing_database() -> None:

@@ -10,13 +10,13 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 class TestMigrationScript:
     """Test suite for migration/bootstrapping scripts."""
 
-    def test_dockerfile_runs_migrations_before_bot_startup(self):
+    def test_dockerfile_bootstraps_database_before_bot_startup(self):
         dockerfile = Path(__file__).resolve().parents[1] / "Dockerfile.prod"
         assert dockerfile.exists(), "bot_service/Dockerfile.prod is missing"
 
         content = dockerfile.read_text(encoding="utf-8")
 
-        assert "alembic upgrade head" in content
+        assert "scripts/bootstrap_database.py" in content
         assert "uvicorn main:create_app" in content
 
     def test_env_example_files_complete(self):
