@@ -52,6 +52,14 @@ warn_if_placeholder() {
   fi
 }
 
+require_command() {
+  local command_name="$1"
+  if ! command -v "$command_name" >/dev/null 2>&1; then
+    echo "ERROR: required command is missing: $command_name" >&2
+    return 1
+  fi
+}
+
 run_privileged() {
   if [[ "${EUID:-$(id -u)}" -eq 0 ]]; then
     "$@"
@@ -106,6 +114,23 @@ echo
 echo "== Git revision =="
 git log -3 --oneline
 git status --short --branch
+echo
+
+echo "== Tooling preflight =="
+require_command git
+require_command docker
+require_command curl
+if ! docker compose version >/dev/null 2>&1; then
+  echo "ERROR: Docker Compose plugin is unavailable. Install Docker with the compose plugin and retry." >&2
+  exit 1
+fi
+if ! docker info >/dev/null 2>&1; then
+  echo "ERROR: Docker daemon is not reachable. Start Docker and retry." >&2
+  exit 1
+fi
+echo "Docker: $(docker --version)"
+echo "Compose: $(docker compose version)"
+echo "Tooling preflight OK"
 echo
 
 echo "== Env preflight =="
