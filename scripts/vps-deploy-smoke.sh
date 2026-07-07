@@ -80,6 +80,15 @@ inspect_container_if_exists() {
   fi
 }
 
+show_failure_context() {
+  echo "== Failure context ==" >&2
+  inspect_image_if_exists "$IMAGE_TAG" >&2
+  inspect_container_if_exists paidviewer_bot_service >&2
+  docker port paidviewer_bot_service 8000/tcp >&2 || true
+  docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" ps >&2 || true
+  docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" logs --tail=240 bot_service >&2 || true
+}
+
 run_privileged() {
   if [[ "${EUID:-$(id -u)}" -eq 0 ]]; then
     "$@"
@@ -251,6 +260,5 @@ for _ in {1..30}; do
 done
 
 echo "Health check failed after 60 seconds" >&2
-docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" ps >&2
-docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" logs --tail=200 bot_service >&2
+show_failure_context
 exit 1
