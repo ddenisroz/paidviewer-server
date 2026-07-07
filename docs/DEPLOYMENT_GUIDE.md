@@ -24,7 +24,8 @@ Create one persistent root:
 
 ```bash
 sudo mkdir -p /srv/paidviewer/{env,uploads,logs,backups,postgres,redis,bot-data}
-sudo chown -R $USER:$USER /srv/paidviewer
+sudo chown -R $USER:$USER /srv/paidviewer/env /srv/paidviewer/postgres /srv/paidviewer/redis
+sudo chown -R 1000:1000 /srv/paidviewer/uploads /srv/paidviewer/logs /srv/paidviewer/backups /srv/paidviewer/bot-data
 ```
 
 Copy `deploy/docker/.env.server.example` to `/srv/paidviewer/env/.env` and fill real values.

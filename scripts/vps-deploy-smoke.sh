@@ -52,6 +52,37 @@ warn_if_placeholder() {
   fi
 }
 
+run_privileged() {
+  if [[ "${EUID:-$(id -u)}" -eq 0 ]]; then
+    "$@"
+  else
+    sudo "$@"
+  fi
+}
+
+prepare_runtime_dirs() {
+  local data_dir
+  data_dir="${PAIDVIEWER_DATA_DIR:-$(read_env_var PAIDVIEWER_DATA_DIR)}"
+  data_dir="${data_dir:-/srv/paidviewer}"
+
+  run_privileged mkdir -p \
+    "$data_dir/env" \
+    "$data_dir/uploads" \
+    "$data_dir/logs" \
+    "$data_dir/backups" \
+    "$data_dir/postgres" \
+    "$data_dir/redis" \
+    "$data_dir/bot-data"
+
+  # bot_service runs as appuser uid 1000 in Dockerfile.prod.
+  # These bind mounts must be writable by that uid even when the VPS deploy is run as root.
+  run_privileged chown -R 1000:1000 \
+    "$data_dir/uploads" \
+    "$data_dir/logs" \
+    "$data_dir/backups" \
+    "$data_dir/bot-data"
+}
+
 cd "$ROOT_DIR"
 
 if [[ ! -f "$ENV_FILE" ]]; then
@@ -108,6 +139,11 @@ for optional_key in \
   warn_if_placeholder "$optional_key"
 done
 echo "Env preflight OK"
+echo
+
+echo "== Runtime directories =="
+prepare_runtime_dirs
+echo "Runtime directories OK"
 echo
 
 echo "== Startup command =="

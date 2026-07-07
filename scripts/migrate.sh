@@ -11,6 +11,12 @@ echo
 
 mkdir -p "$DATA_DIR"/{env,uploads,logs,backups,postgres,redis,bot-data}
 
+if [[ "${EUID:-$(id -u)}" -eq 0 ]]; then
+  chown -R 1000:1000 "$DATA_DIR"/{uploads,logs,backups,bot-data}
+else
+  sudo chown -R 1000:1000 "$DATA_DIR"/{uploads,logs,backups,bot-data}
+fi
+
 if [[ ! -f "$ENV_FILE" ]]; then
   cp deploy/docker/.env.example "$ENV_FILE"
   echo "Created $ENV_FILE from deploy/docker/.env.example"
