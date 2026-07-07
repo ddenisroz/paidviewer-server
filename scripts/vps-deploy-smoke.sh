@@ -60,6 +60,26 @@ require_command() {
   fi
 }
 
+inspect_image_if_exists() {
+  local image_tag="$1"
+  if docker image inspect "$image_tag" >/dev/null 2>&1; then
+    docker image inspect "$image_tag" \
+      --format 'image={{.RepoTags}} id={{.Id}} created={{.Created}} cmd={{json .Config.Cmd}}'
+  else
+    echo "image=$image_tag not found locally"
+  fi
+}
+
+inspect_container_if_exists() {
+  local container_name="$1"
+  if docker container inspect "$container_name" >/dev/null 2>&1; then
+    docker container inspect "$container_name" \
+      --format 'container={{.Name}} image={{.Config.Image}} status={{.State.Status}} restarting={{.State.Restarting}} exit={{.State.ExitCode}} cmd={{json .Config.Cmd}}'
+  else
+    echo "container=$container_name not found"
+  fi
+}
+
 run_privileged() {
   if [[ "${EUID:-$(id -u)}" -eq 0 ]]; then
     "$@"
@@ -184,6 +204,10 @@ docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" config --quiet
 echo "Compose config OK"
 echo
 
+echo "== Existing backend image =="
+inspect_image_if_exists "$IMAGE_TAG"
+echo
+
 echo "== Build backend image =="
 docker build --no-cache -t "$IMAGE_TAG" -f bot_service/Dockerfile.prod bot_service
 echo
@@ -196,11 +220,16 @@ if [[ "$IMAGE_CMD" != *"bootstrap_database.py"* ]]; then
   echo "Remove the stale image with 'docker rmi $IMAGE_TAG' and retry the smoke script." >&2
   exit 1
 fi
+inspect_image_if_exists "$IMAGE_TAG"
 echo
 
 echo "== Restart stack =="
 docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" down --remove-orphans
 docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d --force-recreate
+echo
+
+echo "== bot_service container inspect =="
+inspect_container_if_exists paidviewer_bot_service
 echo
 
 echo "== Containers =="
