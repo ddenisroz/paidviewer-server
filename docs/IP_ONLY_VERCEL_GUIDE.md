@@ -241,8 +241,12 @@ LOG_FILE_LEVEL=INFO
 После изменения env перезапусти backend:
 
 ```bash
-docker compose --env-file /srv/paidviewer/env/.env -f deploy/docker/docker-compose.server.yml up -d
+bash scripts/vps-deploy-smoke.sh
 ```
+
+После первого успешного `Health OK` для чисто env-only перезапуска можно
+использовать `docker compose ... up -d --force-recreate bot_service`, но для
+первого запуска и обновлений безопаснее оставаться на smoke-скрипте.
 
 ## 5. Настроить Vercel Rewrites
 
