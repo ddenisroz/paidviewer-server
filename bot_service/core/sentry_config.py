@@ -13,10 +13,16 @@ import functools
 import logging
 from typing import Optional, Dict, Any
 
-import sentry_sdk
-from sentry_sdk.integrations.fastapi import FastApiIntegration
-from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
-from sentry_sdk.integrations.logging import LoggingIntegration
+try:
+    import sentry_sdk
+    from sentry_sdk.integrations.fastapi import FastApiIntegration
+    from sentry_sdk.integrations.logging import LoggingIntegration
+    from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
+except ModuleNotFoundError:  # pragma: no cover - depends on optional local dev deps
+    sentry_sdk = None
+    FastApiIntegration = None
+    LoggingIntegration = None
+    SqlalchemyIntegration = None
 
 from core.config import settings
 
@@ -70,6 +76,9 @@ def init_sentry():
     
     if not sentry_dsn:
         logger.debug("Sentry DSN not configured, error tracking disabled")
+        return
+    if sentry_sdk is None:
+        logger.warning("Sentry DSN is configured, but sentry-sdk is not installed; error tracking disabled")
         return
     
     try:
@@ -132,6 +141,8 @@ def set_user_context(user_id: int, username: Optional[str] = None, **extra):
         username: Username (optional)
         **extra: Additional user data
     """
+    if sentry_sdk is None:
+        return
     sentry_sdk.set_user({
         "id": user_id,
         "username": username,
@@ -149,6 +160,8 @@ def set_context(key: str, data: Dict[str, Any]):
         key: Context key (e.g., "platform", "feature")
         data: Context data
     """
+    if sentry_sdk is None:
+        return
     sentry_sdk.set_context(key, data)
 
 
@@ -164,6 +177,8 @@ def add_breadcrumb(message: str, category: str = "default", level: str = "info",
         level: Level (debug, info, warning, error)
         **data: Additional data
     """
+    if sentry_sdk is None:
+        return
     sentry_sdk.add_breadcrumb(
         message=message,
         category=category,
@@ -182,6 +197,8 @@ def capture_exception(error: Exception, **extra):
         error: Exception to capture
         **extra: Additional context
     """
+    if sentry_sdk is None:
+        return
     if extra:
         with sentry_sdk.push_scope() as scope:
             for key, value in extra.items():
@@ -202,6 +219,8 @@ def capture_message(message: str, level: str = "info", **extra):
         level: Level (debug, info, warning, error, fatal)
         **extra: Additional context
     """
+    if sentry_sdk is None:
+        return
     if extra:
         with sentry_sdk.push_scope() as scope:
             for key, value in extra.items():
@@ -225,6 +244,8 @@ def with_sentry_context(**context):
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
+            if sentry_sdk is None:
+                return func(*args, **kwargs)
             with sentry_sdk.push_scope() as scope:
                 for key, value in context.items():
                     scope.set_tag(key, value)
