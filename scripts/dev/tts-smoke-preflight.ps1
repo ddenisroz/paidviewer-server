@@ -121,7 +121,8 @@ function Invoke-ComposeConfigCheck {
 
 $repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 $botEnvPath = Join-Path $repoRoot 'bot_service\.env'
-$frontendEnvPath = Join-Path $repoRoot 'frontend\.env'
+$webRoot = if ($env:PAIDVIEWER_WEB_ROOT) { $env:PAIDVIEWER_WEB_ROOT } else { Join-Path (Split-Path $repoRoot -Parent) 'paidviewer-web\frontend' }
+$frontendEnvPath = Join-Path $webRoot '.env'
 $results = [System.Collections.Generic.List[object]]::new()
 
 if (Test-Path $botEnvPath) {
@@ -132,10 +133,10 @@ else {
 }
 
 if (Test-Path $frontendEnvPath) {
-    Add-Result $results 'OK' 'files' "Found frontend env: $frontendEnvPath"
+    Add-Result $results 'OK' 'files' "Found frontend env via PAIDVIEWER_WEB_ROOT: $frontendEnvPath"
 }
 else {
-    Add-Result $results 'FAIL' 'files' "Missing frontend env: $frontendEnvPath"
+    Add-Result $results 'WARN' 'files' "Frontend env not found; skipped split-web check. Set PAIDVIEWER_WEB_ROOT to enable it."
 }
 
 $botEnv = Read-EnvFile $botEnvPath
@@ -148,10 +149,12 @@ Test-EnvKeys -Map $botEnv -Area 'bot_service' -RequiredKeys @(
     'FRONTEND_URL'
 ) -Results $results
 
-Test-EnvKeys -Map $frontendEnv -Area 'frontend' -RequiredKeys @(
-    'VITE_BOT_SERVICE_URL',
-    'VITE_BOT_SERVICE_WS_URL'
-) -Results $results
+if ($frontendEnv.Count -gt 0) {
+    Test-EnvKeys -Map $frontendEnv -Area 'frontend' -RequiredKeys @(
+        'VITE_BOT_SERVICE_URL',
+        'VITE_BOT_SERVICE_WS_URL'
+    ) -Results $results
+}
 
 switch ($Scenario) {
     'all' {

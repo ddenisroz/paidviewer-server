@@ -12,6 +12,7 @@ from pydantic import ValidationError
 
 BOT_SERVICE_DIR = Path(__file__).resolve().parents[1]
 REPO_ROOT = BOT_SERVICE_DIR.parent
+WEB_ROOT = Path(os.getenv("PAIDVIEWER_WEB_ROOT", REPO_ROOT.parent / "paidviewer-web" / "frontend"))
 
 
 class TestConfigurationLoading:
@@ -148,29 +149,30 @@ class TestMigrationScript:
         """Test migration script on fresh install"""
         import subprocess
         
-        # Check if migrate.sh exists
-        assert os.path.exists('migrate.sh'), "migrate.sh script not found"
+        migrate_sh = REPO_ROOT / 'scripts' / 'migrate.sh'
+        assert migrate_sh.exists(), f"{migrate_sh} script not found"
         
-        # Check if script is executable
-        result = subprocess.run(['bash', '-n', 'migrate.sh'], capture_output=True)
+        result = subprocess.run(['bash', '-n', str(migrate_sh)], capture_output=True)
         assert result.returncode == 0, "migrate.sh has syntax errors"
     
     @pytest.mark.skipif(os.name != 'nt', reason="PowerShell script tests only on Windows")
     def test_migration_script_windows_exists(self):
         """Test migration script on Windows"""
-        # Check if migrate.ps1 exists
-        if not os.path.exists('../migrate.ps1'):
-            print("[WARN] migrate.ps1 script not found")
+        migrate_ps1 = REPO_ROOT / 'scripts' / 'migrate.ps1'
+        assert migrate_ps1.exists(), f"{migrate_ps1} script not found"
     
     def test_env_example_files_exist(self):
-        """Verify .env.example templates exist for all services"""
+        """Verify server .env.example template exists; split web template is optional here."""
         required_env_examples = [
             BOT_SERVICE_DIR / '.env.example',
-            REPO_ROOT / 'frontend' / '.env.example',
         ]
         
         for env_file in required_env_examples:
             assert env_file.exists(), f"{env_file} not found"
+
+        web_env_example = WEB_ROOT / '.env.example'
+        if not web_env_example.exists():
+            pytest.skip("paidviewer-web is split out; set PAIDVIEWER_WEB_ROOT to validate web env template")
     
     def test_env_example_has_all_variables(self):
         """Verify .env.example has all required variables documented"""
