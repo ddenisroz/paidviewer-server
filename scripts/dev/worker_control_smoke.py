@@ -14,6 +14,8 @@ from typing import Iterator
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 BOT_SERVICE_ROOT = REPO_ROOT / "bot_service"
+SELF_HOST_ROOT = Path(os.getenv("PAIDVIEWER_SELF_HOST_ROOT", REPO_ROOT.parent / "paidviewer-self-host"))
+SELF_HOST_AGENT_ROOT = SELF_HOST_ROOT / "tts_worker_agent"
 
 os.environ.setdefault("ENV_FILE", str(BOT_SERVICE_ROOT / ".env"))
 os.environ["DEBUG"] = "true"
@@ -22,12 +24,21 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 if str(BOT_SERVICE_ROOT) not in sys.path:
     sys.path.insert(0, str(BOT_SERVICE_ROOT))
+if SELF_HOST_AGENT_ROOT.exists() and str(SELF_HOST_ROOT) not in sys.path:
+    sys.path.insert(0, str(SELF_HOST_ROOT))
 
 from core.database import SessionLocal  # noqa: E402
 from repositories.worker_repository import WorkerRepository  # noqa: E402
 from services.tts.tts_manager import get_tts_manager  # noqa: E402
 from services.worker_control.service import WorkerControlPlaneService  # noqa: E402
-from tts_worker_agent.adapters import F5Adapter  # noqa: E402
+
+try:
+    from tts_worker_agent.adapters import F5Adapter  # noqa: E402
+except ModuleNotFoundError as exc:  # pragma: no cover - operational smoke guard
+    raise SystemExit(
+        "Missing tts_worker_agent. Clone paidviewer-self-host next to paidviewer-server "
+        "or set PAIDVIEWER_SELF_HOST_ROOT=/path/to/paidviewer-self-host."
+    ) from exc
 
 
 RIFF_SAMPLE = b"RIFF\x24\x00\x00\x00WAVEfmt "

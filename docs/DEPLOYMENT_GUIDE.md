@@ -16,16 +16,7 @@ Use three repositories:
 | `ddenisroz/paidviewer-web` | `frontend` | Vercel |
 | `ddenisroz/paidviewer-self-host` | `tts_worker_agent`, release scripts, user README | GitHub Releases |
 
-Do not commit runtime state: `.env`, `logs`, `uploads`, `backups`, `tmp`, caches, `frontend/dist`, `node_modules`, local worker `config.json`.
-
-Prepare split folders from the current workspace:
-
-```powershell
-.\scripts\dev\export_split_repos.ps1
-.\scripts\dev\export_split_repos.ps1 -Apply
-```
-
-The script writes to a sibling `paidviewer-split` folder by default. Initialize and push each resulting folder as its own Git repository.
+Do not commit server runtime state: `.env`, `logs`, `uploads`, `backups`, `tmp`, caches or local database dumps.
 
 ## VPS Layout
 
@@ -183,4 +174,4 @@ Apply:
 .\scripts\dev\cleanup_worktree.ps1 -Apply
 ```
 
-The cleanup script is allowlist-based. It removes caches, logs, temp dirs and build output. It does not remove `.env`, `.venv`, `node_modules`, worker config, uploads or `bot_service/core/data`. Add `-IncludeLocalData` only when you intentionally want to remove local backend state.
+The cleanup script is allowlist-based. It removes backend caches, logs, temp dirs and build output. It does not remove `.env`, `.venv`, uploads or `/srv/paidviewer` runtime data.

@@ -9,6 +9,7 @@ os.environ["TESTING"] = "true"
 TEST_DIR = Path(__file__).resolve().parent
 BOT_SERVICE_DIR = TEST_DIR.parent
 PROJECT_ROOT = BOT_SERVICE_DIR.parent
+WEB_ROOT = Path(os.getenv("PAIDVIEWER_WEB_ROOT", PROJECT_ROOT.parent / "paidviewer-web" / "frontend"))
 
 # Add bot_service to path
 sys.path.insert(0, str(BOT_SERVICE_DIR))
@@ -170,7 +171,7 @@ class TestAllSystems:
     
     def test_frontend_websocket_optimization(self):
         """Test frontend WebSocket optimization"""
-        ws_file = PROJECT_ROOT / "frontend/src/utils/sharedWebSocket.ts"
+        ws_file = WEB_ROOT / "src/utils/sharedWebSocket.ts"
         
         if ws_file.exists():
             with open(ws_file, 'r') as f:
@@ -188,11 +189,11 @@ class TestAllSystems:
             else:
                 print("[WARN]  WebSocket optimization not clearly detected")
         else:
-            print("[WARN]  Frontend WebSocket file not found, skipping test")
+            print("[WARN]  Frontend repo not found via PAIDVIEWER_WEB_ROOT, skipping test")
     
     def test_websocket_reconnection_logic(self):
         """Test WebSocket reconnection logic"""
-        ws_file = PROJECT_ROOT / "frontend/src/utils/sharedWebSocket.ts"
+        ws_file = WEB_ROOT / "src/utils/sharedWebSocket.ts"
         
         if ws_file.exists():
             with open(ws_file, 'r') as f:
@@ -204,16 +205,16 @@ class TestAllSystems:
             else:
                 print("[WARN]  Reconnection logic not clearly detected")
         else:
-            print("[WARN]  Frontend WebSocket file not found, skipping test")
+            print("[WARN]  Frontend repo not found via PAIDVIEWER_WEB_ROOT, skipping test")
     
     # ===== 13.7 Test Performance Improvements =====
     
     def test_code_splitting_implemented(self):
         """Test that code splitting is implemented"""
-        app_file = PROJECT_ROOT / "frontend/src/App.jsx"
+        app_file = WEB_ROOT / "src/App.jsx"
         
         if not app_file.exists():
-            app_file = PROJECT_ROOT / "frontend/src/App.tsx"
+            app_file = WEB_ROOT / "src/App.tsx"
         
         if app_file.exists():
             try:
@@ -230,7 +231,7 @@ class TestAllSystems:
             except Exception as e:
                 print(f"[WARN]  Could not read App file: {e}")
         else:
-            print("[WARN]  App file not found, skipping test")
+            print("[WARN]  Frontend repo not found via PAIDVIEWER_WEB_ROOT, skipping test")
     
     def test_database_optimization(self):
         """Test database optimization"""
@@ -258,11 +259,11 @@ class TestAllSystems:
         """Test that error boundaries exist in frontend"""
         # Check for ErrorBoundary component
         error_boundary_paths = [
-            PROJECT_ROOT / "frontend/src/components/ErrorBoundary.jsx",
-            PROJECT_ROOT / "frontend/src/components/ErrorBoundary.tsx",
-            PROJECT_ROOT / "frontend/src/components/ui/ErrorBoundary.jsx",
-            PROJECT_ROOT / "frontend/src/components/ui/ErrorBoundary.tsx",
-            PROJECT_ROOT / "frontend/src/shared/components/ErrorBoundary/AppErrorBoundary.tsx", # Updated path based on view_file output
+            WEB_ROOT / "src/components/ErrorBoundary.jsx",
+            WEB_ROOT / "src/components/ErrorBoundary.tsx",
+            WEB_ROOT / "src/components/ui/ErrorBoundary.jsx",
+            WEB_ROOT / "src/components/ui/ErrorBoundary.tsx",
+            WEB_ROOT / "src/shared/components/ErrorBoundary/AppErrorBoundary.tsx",
         ]
         
         found = any(path.exists() for path in error_boundary_paths)
@@ -276,10 +277,10 @@ class TestAllSystems:
         """Test API error handling"""
         # Check for error handling in API client
         api_client_paths = [
-            PROJECT_ROOT / "frontend/src/services/microservices.js",
-            PROJECT_ROOT / "frontend/src/services/api.js",
-            PROJECT_ROOT / "frontend/src/utils/api.js",
-            PROJECT_ROOT / "frontend/src/services/api/unified-api.ts", # Updated path
+            WEB_ROOT / "src/services/microservices.js",
+            WEB_ROOT / "src/services/api.js",
+            WEB_ROOT / "src/utils/api.js",
+            WEB_ROOT / "src/services/api/unified-api.ts",
         ]
         
         for path in api_client_paths:

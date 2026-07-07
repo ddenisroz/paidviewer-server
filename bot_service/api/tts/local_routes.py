@@ -1,6 +1,6 @@
 ﻿# api/tts/local_routes.py
 """
-Provider-aware Local TTS API endpoints.
+Provider-aware Self Hosted TTS API endpoints.
 """
 
 import logging
@@ -99,7 +99,7 @@ def _get_local_config_or_404(
 ):
     config = repo.get_by_user_id(user_id, provider=provider)
     if not config:
-        raise HTTPException(status_code=404, detail="Local TTS is not configured")
+        raise HTTPException(status_code=404, detail="Self Hosted TTS is not configured")
     return config
 
 
@@ -240,7 +240,7 @@ async def get_local_tts_config(
                 "official_mode": "self_host",
                 "recommended_path": provider_contract.get("official_self_host_path", "tts_worker_agent"),
                 "capabilities": get_provider_capabilities(resolved_provider),
-                "message": "Local TTS is not configured",
+                "message": "Self Hosted TTS is not configured",
         }
 
         compatibility_use_local = _is_provider_local_mode(db, int(user_id), resolved_provider)
@@ -365,7 +365,7 @@ async def toggle_local_tts(
 
         config = repo.get_by_user_id(user["id"], provider=resolved_provider)
         if not config:
-            raise HTTPException(status_code=404, detail="Local TTS config not found.")
+            raise HTTPException(status_code=404, detail="Self Hosted TTS config not found.")
 
         current_use_local = (
             _is_provider_local_mode(db, int(user["id"]), resolved_provider)
@@ -387,7 +387,7 @@ async def toggle_local_tts(
                     repo.disable_local(config)
                 raise HTTPException(
                     status_code=503,
-                    detail="Local TTS is unavailable. Check your connection.",
+                    detail="Self Hosted TTS is unavailable. Check your connection.",
                 )
 
         service = TTSService(db)

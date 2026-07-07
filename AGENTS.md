@@ -1,6 +1,6 @@
 ﻿# Repository Guidelines
 
-This file is an internal guide for contributors and agents working in `paidviewer_tools`.
+This file is an internal guide for contributors and agents working in `paidviewer-server`.
 If behavior changes, keep the active product docs in `docs/` in sync.
 
 ## Project Structure
@@ -11,7 +11,6 @@ If behavior changes, keep the active product docs in `docs/` in sync.
   - `repositories/` for data access
   - `core/` for config/auth
   - `tests/` for backend tests
-- `frontend/`: React + Vite application.
 - `deploy/`: Docker compose files and deploy assets.
 - `docs/`: active product and operator docs.
 - `scripts/`: project tooling.
@@ -59,14 +58,6 @@ If behavior changes, keep the active product docs in `docs/` in sync.
 - Run migrations:
   - `cd bot_service`
   - `alembic upgrade head`
-- Frontend local run:
-  - `cd frontend`
-  - `npm install`
-  - `npm run dev`
-- Frontend checks:
-  - `npm run type-check`
-  - `npm run test:run`
-  - `npm run build`
 - Docker dev stack:
   - `.\start-dev.ps1`
 
@@ -85,8 +76,6 @@ If behavior changes, keep the active product docs in `docs/` in sync.
 
 - Backend:
   - run `pytest` from `bot_service/`
-- Frontend:
-  - use Vitest via `npm run test:run`
 - For release-sensitive changes, prefer targeted regression before broad changes:
   - TTS routes/contracts
   - VK OAuth and role parity

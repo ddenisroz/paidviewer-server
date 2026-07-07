@@ -116,11 +116,6 @@ $fixedTargets = @(
   '_pytest_tmp',
   '.ruff_cache',
   'coverage',
-  'frontend\dist',
-  'frontend\build',
-  'frontend\.vite',
-  'frontend\.pytest_cache',
-  'frontend\playwright-report',
   'bot_service\.pytest_cache',
   'bot_service\.pytest_tmp',
   'bot_service\_pytest_cache',
@@ -128,12 +123,6 @@ $fixedTargets = @(
   'bot_service\logs',
   'bot_service\temp',
   'bot_service\cache',
-  'tts_service\.pytest_cache',
-  'tts_service\logs',
-  'tts_service\temp',
-  'tts_service\cache',
-  'tts_service\audio',
-  'tts_service\f5_tts_cache',
   'tmp_runtime_logs',
   'logs',
   'temp',
@@ -153,7 +142,7 @@ foreach ($target in $fixedTargets) {
   Remove-RepoTarget $target
 }
 
-Remove-NamedDirectories -Roots @('bot_service', 'scripts', 'tts_service', 'tts_worker_agent') -Names @(
+Remove-NamedDirectories -Roots @('bot_service', 'scripts') -Names @(
   '__pycache__',
   '.pytest_cache',
   '.pytest_tmp',
@@ -161,7 +150,7 @@ Remove-NamedDirectories -Roots @('bot_service', 'scripts', 'tts_service', 'tts_w
   '_pytest_tmp'
 )
 
-Remove-MatchedFiles -Roots @('bot_service', 'scripts', 'tts_service', 'tts_worker_agent') -Filters @(
+Remove-MatchedFiles -Roots @('bot_service', 'scripts') -Filters @(
   '*.pyc',
   '*.pyo',
   '*.tmp',

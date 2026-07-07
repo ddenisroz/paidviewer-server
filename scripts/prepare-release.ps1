@@ -28,7 +28,6 @@ param(
     [switch]$IncludeVenvCaches,
     [switch]$IncludeLogs,
     [switch]$RunChecks,
-    [switch]$RunFrontendBuild,
     [int]$MaxListItems = 200
 )
 
@@ -232,23 +231,16 @@ $fixedRelativePaths = @(
     ".ruff_cache",
     ".mypy_cache",
     ".cache",
-    "frontend/dist",
-    "frontend/coverage",
-    "frontend/.vite",
-    "frontend/.vitest",
     "bot_service/.pytest_cache",
     "bot_service/.ruff_cache",
     "bot_service/.mypy_cache",
     "bot_service/htmlcov",
     "bot_service/.benchmarks",
-    "bot_service/tmp",
-    "tts_worker_agent/.venv",
-    "tts_worker_agent/tmp_agent_stdout.log",
-    "tts_worker_agent/tmp_agent_stderr.log"
+    "bot_service/tmp"
 )
 
 if ($IncludeNodeModules) {
-    $fixedRelativePaths += "frontend/node_modules"
+    Write-Warning "IncludeNodeModules is ignored in paidviewer-server; frontend lives in paidviewer-web."
 }
 if ($IncludeLogs) {
     $fixedRelativePaths += "logs"
@@ -261,7 +253,6 @@ foreach ($relativePath in $fixedRelativePaths) {
 
 $roots = @(
     (Join-Path $repoRoot "bot_service"),
-    (Join-Path $repoRoot "frontend"),
     (Join-Path $repoRoot "deploy"),
     (Join-Path $repoRoot "docs"),
     (Join-Path $repoRoot "scripts")
@@ -342,11 +333,6 @@ Write-Host ("[prepare-release] Removed: {0}, Failed: {1}" -f $removed, $failed)
 
 if ($RunChecks) {
     Invoke-CommandChecked -Name "Backend tests (pytest -q)" -WorkDir (Join-Path $repoRoot "bot_service") -Command @("python", "-m", "pytest", "-q")
-    Invoke-CommandChecked -Name "Frontend lint" -WorkDir (Join-Path $repoRoot "frontend") -Command @("npm", "run", "lint")
-    Invoke-CommandChecked -Name "Frontend type-check" -WorkDir (Join-Path $repoRoot "frontend") -Command @("npm", "run", "type-check")
-    if ($RunFrontendBuild) {
-        Invoke-CommandChecked -Name "Frontend build" -WorkDir (Join-Path $repoRoot "frontend") -Command @("npm", "run", "build")
-    }
 }
 
 Write-Host ""
