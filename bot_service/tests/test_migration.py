@@ -20,6 +20,38 @@ class TestMigrationScript:
         assert "scripts/bootstrap_database.py" in content
         assert "uvicorn main:create_app" in content
 
+    def test_bootstrap_recovers_failed_alembic_start_without_users_table(self, monkeypatch):
+        import scripts.bootstrap_database as bootstrap_database
+
+        calls = []
+
+        class FakeSession:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb):
+                return False
+
+            def execute(self, statement):
+                calls.append(("execute", str(statement)))
+                return SimpleNamespace(fetchall=lambda: [("75ba5c72b102",)])
+
+        monkeypatch.setattr(bootstrap_database, "SessionLocal", lambda: FakeSession())
+        monkeypatch.setattr(bootstrap_database, "_table_exists", lambda table: table == "alembic_version")
+        monkeypatch.setattr(bootstrap_database, "_bootstrap_empty_database", lambda: calls.append(("bootstrap", None)))
+        monkeypatch.setattr(bootstrap_database, "_upgrade_existing_database", lambda: calls.append(("upgrade", None)))
+        monkeypatch.setattr(
+            bootstrap_database,
+            "_stamp_existing_unversioned_database",
+            lambda: calls.append(("stamp_unversioned", None)),
+        )
+
+        bootstrap_database.main()
+
+        assert ("bootstrap", None) in calls
+        assert ("upgrade", None) not in calls
+        assert ("stamp_unversioned", None) not in calls
+
     def test_bootstrap_recovers_unversioned_existing_schema(self, monkeypatch):
         import scripts.bootstrap_database as bootstrap_database
 
@@ -194,12 +226,12 @@ class TestMigrationScript:
 def run_tests():
     test_suite = TestMigrationScript()
     tests = [
+        test_suite.test_dockerfile_bootstraps_database_before_bot_startup,
         test_suite.test_env_example_files_complete,
         test_suite.test_migration_scripts_exist,
         test_suite.test_migration_script_has_key_generation,
         test_suite.test_migration_script_creates_directories,
-        test_suite.test_migration_script_installs_dependencies,
-        test_suite.test_migration_script_runs_migrations,
+        test_suite.test_migration_script_points_to_server_smoke,
         test_suite.test_required_directories_structure,
         test_suite.test_env_files_have_comments,
         test_suite.test_config_validation_on_startup,
