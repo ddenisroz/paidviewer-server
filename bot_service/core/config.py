@@ -287,6 +287,14 @@ class Settings(BaseSettings):
         default="WARNING",
         description="Log level for rotating file handler (DEBUG/INFO/WARNING/ERROR/CRITICAL)",
     )
+    log_file_max_bytes: int = Field(
+        default=5 * 1024 * 1024,
+        description="Maximum size of bot_service.log before rotation",
+    )
+    log_file_backup_count: int = Field(
+        default=5,
+        description="Number of rotated bot_service.log backups to keep",
+    )
     enable_json_logs: bool = Field(default=False, description="Enable JSON formatted logs")
     enable_log_rotation: bool = Field(default=True, description="Enable log rotation")
 

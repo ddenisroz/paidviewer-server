@@ -197,9 +197,11 @@ Security log:
 - `bot_service.log`: `5 MB` файл + `5` backup-файлов;
 - `security.log`: `5 MB` файл + `5` backup-файлов.
 
-Для security log лимиты можно менять в `/srv/paidviewer/env/.env`:
+Лимиты можно менять в `/srv/paidviewer/env/.env`:
 
 ```env
+LOG_FILE_MAX_BYTES=5242880
+LOG_FILE_BACKUP_COUNT=5
 SECURITY_LOG_MAX_BYTES=5242880
 SECURITY_LOG_BACKUP_COUNT=5
 ```

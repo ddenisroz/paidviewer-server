@@ -261,11 +261,14 @@ def _create_file_log_handler(log_file: Path, file_log_level: int) -> logging.Han
     else:
         from logging.handlers import RotatingFileHandler
 
+        max_bytes = max(1, int(getattr(settings, "log_file_max_bytes", 5 * 1024 * 1024)))
+        backup_count = max(0, int(getattr(settings, "log_file_backup_count", 5)))
+
         try:
             handler = RotatingFileHandler(
                 log_file,
-                maxBytes=5 * 1024 * 1024,  # 5 MB max
-                backupCount=5,  # Keep 5 files = 25 MB total max
+                maxBytes=max_bytes,
+                backupCount=backup_count,
                 encoding="utf-8",
             )
         except (PermissionError, OSError) as exc:
