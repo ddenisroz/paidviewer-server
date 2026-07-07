@@ -115,12 +115,25 @@ class WorkerFailRequest(BaseModel):
 
 
 def _resolve_server_base_url(request: Request) -> str:
+    forwarded_proto = str(request.headers.get("x-forwarded-proto") or "").split(",", maxsplit=1)[0].strip().lower()
+    forwarded_host = str(request.headers.get("x-forwarded-host") or "").split(",", maxsplit=1)[0].strip()
+    if forwarded_proto in {"http", "https"} and forwarded_host:
+        forwarded_origin = _normalize_origin(f"{forwarded_proto}://{forwarded_host}")
+        if forwarded_origin:
+            return forwarded_origin
+
+    configured_url = str(settings.backend_url or "").strip().rstrip("/")
+    configured_origin = _normalize_origin(configured_url)
+    if configured_origin:
+        configured_host = (urlparse(configured_origin).hostname or "").strip().lower()
+        if configured_host not in {"localhost", "127.0.0.1", "0.0.0.0", "testserver"}:
+            return configured_origin
+
     request_base_url = str(request.base_url or "").strip().rstrip("/")
     if request_base_url:
         return request_base_url
-    configured_url = str(settings.backend_url or "").strip().rstrip("/")
-    if configured_url:
-        return configured_url
+    if configured_origin:
+        return configured_origin
     return "http://127.0.0.1:8000"
 
 

@@ -130,6 +130,35 @@ def test_user_can_create_provisioning_bundle(authenticated_client):
     assert payload["worker_agent_contract"]["recommended_path"] == "tts_worker_agent"
 
 
+def test_provisioning_bundle_prefers_forwarded_public_origin(authenticated_client):
+    response = authenticated_client.post(
+        "/api/tts/workers/provisioning",
+        headers={
+            "x-forwarded-proto": "https",
+            "x-forwarded-host": "paidviewer-web.vercel.app",
+        },
+        json={"label_hint": "Studio PC", "provider_hint": "f5"},
+    )
+    assert response.status_code == 200, response.text
+
+    bundle = response.json()["provisioning_bundle"]
+    assert bundle["server_base_url"] == "https://paidviewer-web.vercel.app"
+    assert "https://paidviewer-web.vercel.app" in bundle["trusted_origins"]
+
+
+def test_provisioning_bundle_uses_public_backend_url_when_configured(authenticated_client, monkeypatch):
+    monkeypatch.setattr("api.tts.worker_routes.settings.backend_url", "https://paidviewer-web.vercel.app")
+
+    response = authenticated_client.post(
+        "/api/tts/workers/provisioning",
+        json={"label_hint": "Studio PC", "provider_hint": "f5"},
+    )
+    assert response.status_code == 200, response.text
+
+    bundle = response.json()["provisioning_bundle"]
+    assert bundle["server_base_url"] == "https://paidviewer-web.vercel.app"
+
+
 def test_provisioning_bundle_includes_saved_local_runtime_key(authenticated_client, db, test_user):
     db.add(
         LocalTTSEndpoint(
