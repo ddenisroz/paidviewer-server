@@ -153,6 +153,21 @@ sudo ufw allow 8000/tcp
 bash scripts/vps-deploy-smoke.sh
 ```
 
+Если до этого ты уже запускал `docker compose up -d` вручную и видишь в логах
+`relation "users" does not exist` или команду контейнера вида
+`alembic upgrade ...`, не продолжай ручной `compose up`. Это старый образ.
+Сделай:
+
+```bash
+cd /opt/paidviewer/server
+git pull
+bash scripts/vps-deploy-smoke.sh
+```
+
+Smoke-скрипт сам пересоберёт `paidviewer-server:local` с `--no-cache`,
+проверит, что команда запуска содержит `bootstrap_database.py`, пересоздаст
+контейнеры и только потом проверит `/health/ready`.
+
 Проверка с твоего компьютера:
 
 ```bash
