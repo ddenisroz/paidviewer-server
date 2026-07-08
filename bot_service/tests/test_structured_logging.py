@@ -47,6 +47,15 @@ def test_create_file_log_handler_uses_rotation_outside_windows_dev(monkeypatch):
             pass
 
 
+def test_relative_log_file_resolves_under_bot_service_root():
+    resolved = structured_logging._resolve_log_file_path("logs/bot_service.log")
+
+    assert resolved.is_absolute()
+    assert resolved.parent.name == "logs"
+    assert resolved.parent.parent.name == "bot_service"
+    assert str(resolved) != "/logs/bot_service.log"
+
+
 def test_safe_log_text_preview_escapes_cyrillic_without_losing_content():
     preview = _safe_log_text_preview("ёжик привет", limit=6)
 

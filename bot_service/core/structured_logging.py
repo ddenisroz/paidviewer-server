@@ -286,6 +286,16 @@ def _create_file_log_handler(log_file: Path, file_log_level: int) -> logging.Han
     return handler
 
 
+def _resolve_log_file_path(raw_log_file: Any) -> Path:
+    """Resolve configured log file paths relative to the bot_service app root."""
+    log_file = Path(str(raw_log_file or "logs/bot_service.log"))
+    if log_file.is_absolute():
+        return log_file
+
+    app_root = Path(__file__).resolve().parents[1]
+    return app_root / log_file
+
+
 def setup_structured_logging():
     """
     Configure structured logging for the application.
@@ -408,11 +418,16 @@ def setup_log_rotation():
 
     File log level is configurable via settings.log_file_level.
     """
-    log_file = Path(getattr(settings, 'log_file', 'logs/bot_service.log'))
-    if not log_file.is_absolute():
-        repo_root = Path(__file__).resolve().parents[2]
-        log_file = repo_root / log_file
-    log_file.parent.mkdir(parents=True, exist_ok=True)
+    log_file = _resolve_log_file_path(getattr(settings, 'log_file', 'logs/bot_service.log'))
+    try:
+        log_file.parent.mkdir(parents=True, exist_ok=True)
+    except (PermissionError, OSError) as exc:
+        module_logger.warning(
+            "File log rotation disabled because log directory '%s' is not writable: %s",
+            log_file.parent,
+            exc,
+        )
+        return
 
     file_log_level = _resolve_log_level(getattr(settings, "log_file_level", "WARNING"), logging.WARNING)
     handler = _create_file_log_handler(log_file, file_log_level)

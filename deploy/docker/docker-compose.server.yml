@@ -75,7 +75,7 @@ services:
       ENABLE_SECURITY_HEADERS: "true"
       ENABLE_JSON_LOGS: ${ENABLE_JSON_LOGS:-true}
       ENABLE_LOG_ROTATION: "true"
-      LOG_FILE: logs/bot_service.log
+      LOG_FILE: /app/logs/bot_service.log
       LOG_FILE_LEVEL: ${LOG_FILE_LEVEL:-WARNING}
       LOG_FILE_MAX_BYTES: ${LOG_FILE_MAX_BYTES:-5242880}
       LOG_FILE_BACKUP_COUNT: ${LOG_FILE_BACKUP_COUNT:-5}
