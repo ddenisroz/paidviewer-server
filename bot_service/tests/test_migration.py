@@ -20,6 +20,23 @@ class TestMigrationScript:
         assert "scripts/bootstrap_database.py" in content
         assert "uvicorn main:create_app" in content
 
+    def test_bootstrap_file_run_adds_app_root_to_python_path(self):
+        import importlib
+        import scripts.bootstrap_database as bootstrap_database
+
+        app_root = Path(__file__).resolve().parents[1]
+        scripts_dir = app_root / "scripts"
+        original_path = list(sys.path)
+
+        try:
+            sys.path[:] = [str(scripts_dir), *[path for path in original_path if path != str(app_root)]]
+            reloaded = importlib.reload(bootstrap_database)
+            assert str(app_root) in sys.path
+            assert reloaded.APP_ROOT == app_root
+        finally:
+            sys.path[:] = original_path
+            importlib.reload(bootstrap_database)
+
     def test_bootstrap_recovers_failed_alembic_start_without_users_table(self, monkeypatch):
         import scripts.bootstrap_database as bootstrap_database
 

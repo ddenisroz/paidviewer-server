@@ -9,6 +9,12 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
+import sys
+
+
+APP_ROOT = Path(__file__).resolve().parents[1]
+if str(APP_ROOT) not in sys.path:
+    sys.path.insert(0, str(APP_ROOT))
 
 from alembic import command
 from alembic.config import Config
@@ -23,8 +29,7 @@ logger = logging.getLogger("bootstrap_database")
 
 
 def _alembic_config() -> Config:
-    root = Path(__file__).resolve().parents[1]
-    return Config(str(root / "alembic.ini"))
+    return Config(str(APP_ROOT / "alembic.ini"))
 
 
 def _table_exists(table_name: str) -> bool:
