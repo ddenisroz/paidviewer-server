@@ -77,6 +77,7 @@ Docker-логи и app-логи ротируются по умолчанию.
 ```bash
 docker exec paidviewer_postgres pg_dump -U paidviewer paidviewer > /srv/paidviewer/backups/paidviewer-$(date +%F-%H%M%S).sql
 cd /opt/paidviewer/server
-git pull
-bash scripts/vps-deploy-smoke.sh
+bash scripts/vps-update.sh
 ```
+
+Не обновляй backend обычным `docker compose up -d`: compose может поднять старый локальный image. `scripts/vps-update.sh` подтягивает свежий `main`, пересобирает image без кеша и проверяет `/health/ready`.

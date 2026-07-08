@@ -326,10 +326,11 @@ Backend:
 ```bash
 docker exec paidviewer_postgres pg_dump -U paidviewer paidviewer > /srv/paidviewer/backups/paidviewer-$(date +%F-%H%M%S).sql
 cd /opt/paidviewer/server
-git pull
-bash scripts/vps-deploy-smoke.sh
+bash scripts/vps-update.sh
 curl -f http://YOUR_SERVER_IP:8000/health/ready
 ```
+
+Для обновлений не запускай `docker compose up -d` напрямую. Он может использовать старый локальный image. `scripts/vps-update.sh` делает `git pull --ff-only`, пересобирает backend image без кеша и запускает smoke-проверку.
 
 Frontend:
 

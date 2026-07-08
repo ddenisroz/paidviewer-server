@@ -53,9 +53,10 @@ BOT_SERVICE_PORT=8000
 
 ```bash
 cd /opt/paidviewer/server
-git pull
-bash scripts/vps-deploy-smoke.sh
+bash scripts/vps-update.sh
 ```
+
+Не используй для обновления простой `docker compose up -d`: он может оставить старый `paidviewer-server:local`. Скрипт `vps-update.sh` сам подтянет `main`, пересоберёт image и проверит health.
 
 ## Где Остальные Части
 
