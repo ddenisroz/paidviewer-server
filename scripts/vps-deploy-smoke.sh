@@ -120,6 +120,46 @@ prepare_runtime_dirs() {
     "$data_dir/bot-data"
 }
 
+run_backend_image_preflight() {
+  local postgres_user postgres_password postgres_db redis_password
+  postgres_user="$(read_env_var POSTGRES_USER)"
+  postgres_password="$(read_env_var POSTGRES_PASSWORD)"
+  postgres_db="$(read_env_var POSTGRES_DB)"
+  redis_password="$(read_env_var REDIS_PASSWORD)"
+
+  docker run --rm -i \
+    --env-file "$ENV_FILE" \
+    --env ENVIRONMENT=production \
+    --env DEBUG=false \
+    --env "DATABASE_URL=postgresql://${postgres_user}:${postgres_password}@postgres:5432/${postgres_db}" \
+    --env "REDIS_URL=redis://:${redis_password}@redis:6379/0" \
+    --env LOG_FILE=/app/logs/preflight.log \
+    --entrypoint python \
+    "$IMAGE_TAG" - <<'PY'
+from pathlib import Path
+
+from scripts import bootstrap_database
+
+if bootstrap_database.APP_ROOT != Path("/app"):
+    raise SystemExit(f"Unexpected bootstrap APP_ROOT: {bootstrap_database.APP_ROOT}")
+
+from core.structured_logging import _resolve_log_file_path
+
+resolved_log_file = _resolve_log_file_path("logs/bot_service.log")
+if resolved_log_file != Path("/app/logs/bot_service.log"):
+    raise SystemExit(f"Unexpected log file path: {resolved_log_file}")
+
+from main import create_app
+
+app = create_app()
+paths = {route.path for route in app.routes}
+if "/health/ready" not in paths:
+    raise SystemExit("/health/ready route is missing")
+
+print("Backend image preflight OK")
+PY
+}
+
 cd "$ROOT_DIR"
 
 if [[ ! -f "$ENV_FILE" ]]; then
@@ -230,6 +270,10 @@ if [[ "$IMAGE_CMD" != *"bootstrap_database.py"* ]]; then
   exit 1
 fi
 inspect_image_if_exists "$IMAGE_TAG"
+echo
+
+echo "== Backend image preflight =="
+run_backend_image_preflight
 echo
 
 echo "== Restart stack =="
