@@ -139,6 +139,20 @@ docker run --rm python:3.12-slim sh -lc "pip install -q cryptography && python -
 - `DONATIONALERTS_CLIENT_ID`, `DONATIONALERTS_CLIENT_SECRET`, `DONATIONALERTS_WEBHOOK_SECRET`;
 - `ADMIN_USERS`.
 
+Для общего Twitch-бота зафиксируй единственный разрешённый аккаунт:
+
+```env
+TWITCH_BOT_EXPECTED_LOGIN=pa1dviewer
+TWITCH_BOT_EXPECTED_USER_ID=
+BOT_TOKEN_AUTO_BOOTSTRAP_ENABLED=false
+```
+
+Пустой `TWITCH_BOT_EXPECTED_USER_ID` допустим для первой авторизации: backend
+проверит точный login `pa1dviewer`. После успешного подключения возьми числовой
+`bot_user_id` в админ-панели и заполни `TWITCH_BOT_EXPECTED_USER_ID` для
+неизменяемой привязки. Auto-bootstrap должен оставаться выключенным, иначе
+выделенный bot token мог бы создаваться из обычного пользовательского OAuth.
+
 Открой порт:
 
 ```bash

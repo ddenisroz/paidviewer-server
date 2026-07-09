@@ -222,6 +222,14 @@ class Settings(BaseSettings):
         default="",
         description="Twitch bot OAuth redirect URI",
     )
+    twitch_bot_expected_login: str = Field(
+        default="pa1dviewer",
+        description="Only this Twitch login may be stored and started as the shared bot",
+    )
+    twitch_bot_expected_user_id: Optional[str] = Field(
+        default=None,
+        description="Optional immutable Twitch user ID for the shared bot",
+    )
 
     # === VK LIVE INTEGRATION ===
     vk_client_id: Optional[str] = Field(default=None, description="VK client ID")
@@ -310,7 +318,7 @@ class Settings(BaseSettings):
 
     # === BOT TOKEN BOOTSTRAP ===
     bot_token_auto_bootstrap_enabled: bool = Field(
-        default=True,
+        default=False,
         description="Allow auto-bootstrap of missing bot_tokens from existing user OAuth tokens",
     )
     bot_token_auto_bootstrap_admin_only: bool = Field(
@@ -425,6 +433,22 @@ class Settings(BaseSettings):
     def normalize_base_urls(cls, v: str) -> str:
         """Normalize base URLs to avoid accidental double slashes in derived links."""
         return (v or "").strip().rstrip("/")
+
+    @field_validator("twitch_bot_expected_login")
+    @classmethod
+    def normalize_twitch_bot_expected_login(cls, v: str) -> str:
+        """Store the expected Twitch bot login in canonical comparison form."""
+        normalized = (v or "").strip().casefold()
+        if not normalized:
+            raise ValueError("TWITCH_BOT_EXPECTED_LOGIN must not be empty")
+        return normalized
+
+    @field_validator("twitch_bot_expected_user_id")
+    @classmethod
+    def normalize_twitch_bot_expected_user_id(cls, v: Optional[str]) -> Optional[str]:
+        """Normalize the optional immutable Twitch bot user ID."""
+        normalized = (v or "").strip()
+        return normalized or None
 
     @field_validator(
         "twitch_redirect_uri",

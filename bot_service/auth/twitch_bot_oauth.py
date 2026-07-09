@@ -19,7 +19,10 @@ from auth.bot_oauth_access import (
 from core.config import settings
 from core.database import get_db
 from core.security_modern import limiter
-from services.twitch_bot_oauth_service import twitch_bot_oauth_service
+from services.twitch_bot_oauth_service import (
+    UnexpectedTwitchBotAccountError,
+    twitch_bot_oauth_service,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -108,9 +111,13 @@ async def twitch_bot_callback(
         raise HTTPException(status_code=400, detail="No authorization code received")
 
     saved_state = request.cookies.get("bot_oauth_state")
-    if not saved_state or saved_state != state:
+    if not saved_state or not state or not secrets.compare_digest(saved_state, state):
         logger.error("[BOT OAUTH] Invalid state parameter")
         raise HTTPException(status_code=400, detail="Invalid state parameter")
+
+    access_token = None
+    bot_user_id = None
+    bot_login = None
 
     try:
         logger.info("[BOT OAUTH] Exchanging code for tokens...")
@@ -129,6 +136,7 @@ async def twitch_bot_callback(
         bot_login = bot_info.get("login")
 
         logger.info(f"[BOT OAUTH] Bot: {bot_login} (ID: {bot_user_id})")
+        twitch_bot_oauth_service.assert_expected_bot_identity(bot_user_id, bot_login)
 
         logger.info("[BOT OAUTH] Saving bot tokens to database...")
         success = await twitch_bot_oauth_service.save_bot_token(
@@ -164,6 +172,19 @@ async def twitch_bot_callback(
         response.delete_cookie("bot_oauth_state")
         return response
 
+    except UnexpectedTwitchBotAccountError as error:
+        logger.warning(
+            "[SECURITY] Rejected Twitch bot OAuth for login=%s user_id=%s: %s",
+            bot_login,
+            bot_user_id,
+            error,
+        )
+        await twitch_bot_oauth_service.revoke_access_token(access_token)
+        response = RedirectResponse(
+            url=f"{ADMIN_BOT_PAGE}&platform=twitch&bot_auth_error=unexpected_account"
+        )
+        response.delete_cookie("bot_oauth_state")
+        return response
     except HTTPException:
         raise
     except Exception as e:

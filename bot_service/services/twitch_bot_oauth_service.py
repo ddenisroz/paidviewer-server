@@ -24,6 +24,10 @@ from repositories.bot_token_repository import BotTokenRepository
 logger = logging.getLogger(__name__)
 
 
+class UnexpectedTwitchBotAccountError(ValueError):
+    """Raised when an OAuth token belongs to a Twitch account other than the configured bot."""
+
+
 def _current_settings():
     """Return the live settings object instead of a stale import captured before tests reload config."""
     from core.config import settings as live_settings
@@ -50,6 +54,50 @@ class TwitchBotOAuthService:
         'whispers:read',  # Read whispers.
         'whispers:edit'   # Send whispers.
     ]
+
+    @staticmethod
+    def assert_expected_bot_identity(bot_user_id: str | None, bot_login: str | None) -> None:
+        """Reject tokens that do not belong to the configured shared bot account."""
+        app_settings = _current_settings()
+        expected_login = (app_settings.twitch_bot_expected_login or "").strip().casefold()
+        expected_user_id = (app_settings.twitch_bot_expected_user_id or "").strip()
+        actual_login = (bot_login or "").strip().casefold()
+        actual_user_id = str(bot_user_id or "").strip()
+
+        if not actual_login or not actual_user_id:
+            raise UnexpectedTwitchBotAccountError("Twitch did not return a complete bot identity")
+        if expected_login and actual_login != expected_login:
+            raise UnexpectedTwitchBotAccountError(
+                f"Only Twitch bot account '{expected_login}' may be authorized"
+            )
+        if expected_user_id and actual_user_id != expected_user_id:
+            raise UnexpectedTwitchBotAccountError(
+                "Authorized Twitch account does not match TWITCH_BOT_EXPECTED_USER_ID"
+            )
+
+    @staticmethod
+    async def revoke_access_token(access_token: str | None) -> None:
+        """Best-effort revocation for a token issued to an unexpected account."""
+        if not access_token:
+            return
+
+        app_settings = _current_settings()
+        try:
+            async with httpx.AsyncClient(timeout=15.0) as client:
+                response = await client.post(
+                    "https://id.twitch.tv/oauth2/revoke",
+                    params={
+                        "client_id": app_settings.twitch_client_id,
+                        "token": access_token,
+                    },
+                )
+            if response.status_code != 200:
+                logger.warning(
+                    "[SECURITY] Twitch rejected unexpected-account token revocation status=%s",
+                    response.status_code,
+                )
+        except Exception:
+            logger.exception("[SECURITY] Failed to revoke unexpected Twitch bot token")
     
     @staticmethod
     def get_authorization_url(state: str) -> str:
@@ -140,6 +188,8 @@ class TwitchBotOAuthService:
         db: Optional[Session] = None
     ) -> bool:
         """Persist the bot token in the database."""
+        TwitchBotOAuthService.assert_expected_bot_identity(bot_user_id, bot_login)
+
         def _save(session_db: Session) -> bool:
             try:
                 repo = BotTokenRepository(session_db)
@@ -174,7 +224,7 @@ class TwitchBotOAuthService:
                 repo.save(bot_token)
                 return True
                 
-            except Exception as e:
+            except Exception:
                 logger.exception("Error saving bot token")
                 session_db.rollback()
                 return False
@@ -200,6 +250,20 @@ class TwitchBotOAuthService:
                     bot_token = repo.get_by_platform('twitch')
 
             if not bot_token:
+                return None
+
+            try:
+                TwitchBotOAuthService.assert_expected_bot_identity(
+                    bot_token.bot_user_id,
+                    bot_token.bot_login,
+                )
+            except UnexpectedTwitchBotAccountError as error:
+                logger.error(
+                    "[SECURITY] Refusing stored Twitch bot token for login=%s user_id=%s: %s",
+                    bot_token.bot_login,
+                    bot_token.bot_user_id,
+                    error,
+                )
                 return None
             
             return {
@@ -272,15 +336,23 @@ class TwitchBotOAuthService:
                 )
                 continue
 
-            saved = await TwitchBotOAuthService.save_bot_token(
-                access_token=access_token,
-                refresh_token=refresh_token or "",
-                expires_in=expires_in,
-                scopes=candidate.scopes if isinstance(candidate.scopes, list) else [],
-                bot_user_id=str(user_info.get('id') or candidate.platform_user_id or ""),
-                bot_login=user_info.get('login') or "",
-                db=session_db,
-            )
+            try:
+                saved = await TwitchBotOAuthService.save_bot_token(
+                    access_token=access_token,
+                    refresh_token=refresh_token or "",
+                    expires_in=expires_in,
+                    scopes=candidate.scopes if isinstance(candidate.scopes, list) else [],
+                    bot_user_id=str(user_info.get('id') or candidate.platform_user_id or ""),
+                    bot_login=user_info.get('login') or "",
+                    db=session_db,
+                )
+            except UnexpectedTwitchBotAccountError as error:
+                logger.warning(
+                    "[SECURITY] Skipping Twitch bot token bootstrap candidate user_id=%s: %s",
+                    candidate.user_id,
+                    error,
+                )
+                continue
             if saved:
                 logger.warning(
                     "[BOOTSTRAP] Twitch bot token auto-seeded from user token (user_id=%s, login=%s)",
@@ -302,6 +374,15 @@ class TwitchBotOAuthService:
 
                 if not bot_token or not bot_token.refresh_token:
                     logger.error("[ERROR] No bot token or refresh token found")
+                    return False
+
+                try:
+                    TwitchBotOAuthService.assert_expected_bot_identity(
+                        bot_token.bot_user_id,
+                        bot_token.bot_login,
+                    )
+                except UnexpectedTwitchBotAccountError as error:
+                    logger.error("[SECURITY] Refusing to refresh unexpected Twitch bot token: %s", error)
                     return False
 
                 refresh_token = decrypt_token(bot_token.refresh_token)
@@ -347,7 +428,7 @@ class TwitchBotOAuthService:
                 logger.error(f"[ERROR] Unexpected response: {response.status_code}")
                 return False
 
-            except Exception as e:
+            except Exception:
                 logger.exception("Error refreshing bot token")
                 session_db.rollback()
                 return False
@@ -389,7 +470,7 @@ class TwitchBotOAuthService:
             with db_session() as new_db:
                 return await _check_and_refresh(new_db)
                 
-        except Exception as e:
+        except Exception:
             logger.exception("Error checking bot token expiration")
             return False
 
